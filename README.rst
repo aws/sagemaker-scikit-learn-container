@@ -1,20 +1,19 @@
-
 ===========================
-SageMaker SciKit-Learn Container
+SageMaker Scikit-learn Container
 ===========================
 
-SageMaker SciKit-Learn Container is an open source library for making the
+SageMaker Scikit-learn Container is an open source library for making the
 SciKit Learn framework run on Amazon SageMaker.
 
-This repository also contains Dockerfiles which install this library, SciKit-Learn, and dependencies
-for building SageMaker SciKit-Learn images.
+This repository also contains Dockerfiles which install this library, Scikit-learn, and dependencies
+for building SageMaker Scikit-learn images.
 
-The SageMaker team uses this repository to build its official SciKit-Learn image. To use this image on SageMaker,
+The SageMaker team uses this repository to build its official Scikit-learn image. To use this image on SageMaker,
 see `Python SDK <https://github.com/aws/sagemaker-python-sdk>`__.
 For end users, this repository is typically of interest if you need implementation details for
-the official image, or if you want to use it to build your own customized SciKit-Learn image.
+the official image, or if you want to use it to build your own customized Scikit-learn image.
 
-For information on running SciKit-Learn jobs on SageMaker: `SageMaker PyTorch Estimators and Models
+For information on running Scikit-learn jobs on SageMaker: `SageMaker PyTorch Estimators and Models
 <https://github.com/aws/sagemaker-python-sdk/tree/master/src/sagemaker/pytorch>`__.
 
 For notebook examples: `SageMaker Notebook
@@ -66,7 +65,7 @@ Base Images
 The "base" Dockerfile encompass the installation of the framework and all of the dependencies
 needed.
 
-Tagging scheme is based on <SciKit-Learn_version>-cpu-py<python_version>. (e.g. 0.20.0-cpu-py2)
+Tagging scheme is based on <Scikit-learn_version>-cpu-py<python_version>. (e.g. 0.20.0-cpu-py2)
 
 All "final" Dockerfiles build images using base images that use the tagging scheme
 above.
@@ -78,7 +77,7 @@ If you want to build your base docker image, then use:
     # All build instructions assume you're building from the root directory of the sagemaker-scikit-container.
 
     # CPU
-    docker build -t sklearn-base:<SciKit-Learn_version>-cpu-py<python_version> -f docker/<SciKit-Learn_version>/base/Dockerfile.cpu --build-arg py_version=<python_version> .
+    docker build -t sklearn-base:<Scikit-learn_version>-cpu-py<python_version> -f docker/<Scikit-learn_version>/base/Dockerfile.cpu --build-arg py_version=<python_version> .
 
 ::
 
@@ -96,7 +95,7 @@ The "final" Dockerfiles encompass the installation of the SageMaker specific sup
 All "final" Dockerfiles use `base images for building <https://github.com/aws/sagemaker-sklearn-container/blob/refactor-notebooks/docker/0.4.0/final/Dockerfile.cpu#L2>`__.
 
 These "base" images are specified with the naming convention of
-sklearn-base:<SciKit-Learn_version>-cpu-py<python_version>.
+sklearn-base:<Scikit-learn_version>-cpu-py<python_version>.
 
 Before building "final" images:
 
@@ -116,7 +115,7 @@ If you want to build "final" Docker images, then use:
     # All build instructions assume you're building from the root directory of the sagemaker-pytorch-container.
 
     # CPU
-    docker build -t <image_name>:<tag> -f docker/<SciKit-Learn_version>/final/Dockerfile.cpu --build-arg py_version=<python_version> .
+    docker build -t <image_name>:<tag> -f docker/<Scikit-learn_version>/final/Dockerfile.cpu --build-arg py_version=<python_version> .
 
 ::
 
@@ -129,7 +128,7 @@ If you want to build "final" Docker images, then use:
 Running the tests
 -----------------
 
-Running the tests requires installation of the SageMaker SciKit-Learn Container code and its test
+Running the tests requires installation of the SageMaker Scikit-learn Container code and its test
 dependencies.
 
 ::
@@ -181,7 +180,7 @@ If you want to run local integration tests, then use:
     pytest test/integration/local --docker-base-name <your_docker_image> \
                       --tag <your_docker_image_tag> \
                       --py-version <2_or_3> \
-                      --framework-version <SciKit-Learn_version>
+                      --framework-version <Scikit-learn_version>
 
 ::
 
@@ -240,6 +239,6 @@ requests to us.
 License
 -------
 
-SageMaker SciKit-Learn Container is licensed under the Apache 2.0 License. It is copyright 2018 Amazon
+SageMaker Scikit-learn Container is licensed under the Apache 2.0 License. It is copyright 2018 Amazon
 .com, Inc. or its affiliates. All Rights Reserved. The license is available at:
 http://aws.amazon.com/apache2.0/
