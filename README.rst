@@ -164,7 +164,7 @@ Running local integration tests require `Docker <https://www.docker.com/>`__ and
 credentials <https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/setup-credentials.html>`__,
 as the local integration tests make calls to a couple AWS services. The local integration tests and
 SageMaker integration tests require configurations specified within their respective
-`conftest.py <https://github.com/aws/sagemaker-sklearn-container/blob/master/test/conftest.py>`__.
+`conftest.py <https://github.com/aws/sagemaker-scikit-learn-container/blob/master/test/conftest.py>`__.
 
 Before running local integration tests:
 
