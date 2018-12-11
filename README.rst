@@ -13,8 +13,8 @@ see `Python SDK <https://github.com/aws/sagemaker-python-sdk>`__.
 For end users, this repository is typically of interest if you need implementation details for
 the official image, or if you want to use it to build your own customized Scikit-learn image.
 
-For information on running Scikit-learn jobs on SageMaker: `SageMaker PyTorch Estimators and Models
-<https://github.com/aws/sagemaker-python-sdk/tree/master/src/sagemaker/pytorch>`__.
+For information on running Scikit-learn jobs on SageMaker: `SageMaker SKLearn Estimators and Models
+<https://github.com/aws/sagemaker-python-sdk/tree/master/src/sagemaker/sklearn>`__.
 
 For notebook examples: `SageMaker Notebook
 Examples <https://github.com/awslabs/amazon-sagemaker-examples>`__.
@@ -51,9 +51,9 @@ Building your image
 utilizes Docker containers to run all training jobs & inference endpoints.
 
 The Docker images are built from the Dockerfiles specified in
-`Docker/ <https://github.com/aws/sagemaker-sklearn-container/tree/master/docker>`__.
+`Docker/ <https://github.com/aws/sagemaker-scikit-learn-container/tree/master/docker>`__.
 
-The Docker files are grouped based on PyTorch version and separated
+The Docker files are grouped based on Scikit-learn version and separated
 based on Python version and processor type.
 
 The Docker images, used to run training & inference jobs, are built from
@@ -65,7 +65,7 @@ Base Images
 The "base" Dockerfile encompass the installation of the framework and all of the dependencies
 needed.
 
-Tagging scheme is based on <Scikit-learn_version>-cpu-py<python_version>. (e.g. 0.20.0-cpu-py2)
+Tagging scheme is based on <Scikit-learn_version>-cpu-py<python_version>. (e.g. 0.20.0-cpu-py3)
 
 All "final" Dockerfiles build images using base images that use the tagging scheme
 above.
@@ -74,7 +74,7 @@ If you want to build your base docker image, then use:
 
 ::
 
-    # All build instructions assume you're building from the root directory of the sagemaker-scikit-container.
+    # All build instructions assume you're building from the root directory of the sagemaker-scikit-learn-container.
 
     # CPU
     docker build -t sklearn-base:<Scikit-learn_version>-cpu-py<python_version> -f docker/<Scikit-learn_version>/base/Dockerfile.cpu --build-arg py_version=<python_version> .
@@ -84,7 +84,7 @@ If you want to build your base docker image, then use:
     # Example
 
     # CPU
-    docker build -t sklearn-base:0.20.0-cpu-py2 -f docker/0.20.0/base/Dockerfile.cpu --build-arg py_version=2 .
+    docker build -t sklearn-base:0.20.0-cpu-py3 -f docker/0.20.0/base/Dockerfile.cpu --build-arg py_version=3 .
 
 
 Final Images
@@ -92,7 +92,7 @@ Final Images
 
 The "final" Dockerfiles encompass the installation of the SageMaker specific support code.
 
-All "final" Dockerfiles use `base images for building <https://github.com/aws/sagemaker-sklearn-container/blob/refactor-notebooks/docker/0.4.0/final/Dockerfile.cpu#L2>`__.
+All "final" Dockerfiles use base images for building.
 
 These "base" images are specified with the naming convention of
 sklearn-base:<Scikit-learn_version>-cpu-py<python_version>.
@@ -104,7 +104,7 @@ Dockerfile.
 
 ::
 
-    # Create the SageMaker PyTorch Container Python package.
+    # Create the SageMaker Scikit-learn Container Python package.
     cd sagemaker-sklearn-container
     python setup.py bdist_wheel
 
@@ -112,7 +112,7 @@ If you want to build "final" Docker images, then use:
 
 ::
 
-    # All build instructions assume you're building from the root directory of the sagemaker-pytorch-container.
+    # All build instructions assume you're building from the root directory of the sagemaker-scikit-learn-container.
 
     # CPU
     docker build -t <image_name>:<tag> -f docker/<Scikit-learn_version>/final/Dockerfile.cpu --build-arg py_version=<python_version> .
@@ -138,7 +138,7 @@ dependencies.
     pip install -e .[test]
 
 Tests are defined in
-`test/ <https://github.com/aws/sagemaker-sklearn-container/tree/master/test>`__
+`test/ <https://github.com/aws/sagemaker-scikit-learn-container/tree/master/test>`__
 and include unit, local integration, and SageMaker integration tests.
 
 Unit Tests
@@ -232,7 +232,7 @@ Contributing
 ------------
 
 Please read
-`CONTRIBUTING.md <https://github.com/aws/sagemaker-pytorch-container/blob/master/CONTRIBUTING.md>`__
+`CONTRIBUTING.md <https://github.com/aws/sagemaker-scikit-learn-container/blob/master/CONTRIBUTING.md>`__
 for details on our code of conduct, and the process for submitting pull
 requests to us.
 
