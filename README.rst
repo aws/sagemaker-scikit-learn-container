@@ -99,8 +99,15 @@ sklearn-base:<Scikit-learn_version>-cpu-py<python_version>.
 
 Before building "final" images:
 
-Build your "base" image. Make sure it is named and tagged in accordance with your "final"
+1. Build your "base" image. Make sure it is named and tagged in accordance with your "final"
 Dockerfile.
+
+2. Run Python set up for Bdist_wheel. (Refer ci/buildspec.yml file)
+
+::
+python setup.py bdist_wheel
+
+::
 
 ::
 
