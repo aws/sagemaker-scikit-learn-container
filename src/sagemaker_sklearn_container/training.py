@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def train(training_environment):
-    """ Runs SciKit-Learn training on a user supplied module in local SageMaker environment.
+    """Runs Scikit-learn training on a user supplied module in local SageMaker environment.
     The user supplied module and its dependencies are downloaded from S3.
     Training is invoked by calling a "train" function in the user supplied module.
 
