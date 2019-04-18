@@ -3,7 +3,7 @@ SageMaker Scikit-learn Container
 ===========================
 
 SageMaker Scikit-learn Container is an open source library for making the
-SciKit Learn framework run on Amazon SageMaker.
+Scikit-learn framework run on Amazon SageMaker.
 
 This repository also contains Dockerfiles which install this library, Scikit-learn, and dependencies
 for building SageMaker Scikit-learn images.
@@ -105,7 +105,6 @@ Dockerfile.
 ::
 
     # Create the SageMaker Scikit-learn Container Python package.
-    cd sagemaker-sklearn-container
     python setup.py bdist_wheel
 
 If you want to build "final" Docker images, then use:
@@ -122,7 +121,7 @@ If you want to build "final" Docker images, then use:
     # Example
 
     # CPU
-    docker build -t preprod-sklearn:0.4.0-cpu-py3 -f docker/0.4.0/final/Dockerfile.cpu --build-arg py_version=3 .
+    docker build -t preprod-sklearn:0.20.0-cpu-py3 -f docker/0.20.0/final/Dockerfile.cpu --build-arg py_version=3 .
 
 
 Running the tests

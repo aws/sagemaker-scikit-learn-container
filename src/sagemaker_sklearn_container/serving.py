@@ -28,11 +28,11 @@ logger.setLevel(logging.DEBUG)
 
 
 def default_model_fn(model_dir):
-    """Loads a model. For SciKit-Learn, a default function to load a model is not provided.
+    """Loads a model. For Scikit-learn, a default function to load a model is not provided.
     Users should provide customized model_fn() in script.
     Args:
         model_dir: a directory where model is saved.
-    Returns: A SciKit-Learn model.
+    Returns: A Scikit-learn model.
     """
     return transformer.default_model_fn(model_dir)
 
@@ -55,10 +55,10 @@ def default_input_fn(input_data, content_type):
 
 
 def default_predict_fn(input_data, model):
-    """A default predict_fn for PyTorch. Calls a model on data deserialized in input_fn.
+    """A default predict_fn for Scikit-learn. Calls a model on data deserialized in input_fn.
     Args:
         input_data: input data (Numpy array) for prediction deserialized by input_fn
-        model: SciKit-Learn model loaded in memory by model_fn
+        model: Scikit-learn model loaded in memory by model_fn
     Returns: a prediction
     """
     output = model.predict(input_data)
