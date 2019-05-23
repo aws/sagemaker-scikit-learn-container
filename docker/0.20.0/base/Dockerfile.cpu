@@ -25,7 +25,7 @@ RUN cd /tmp && \
 
 # Python won’t try to write .pyc or .pyo files on the import of source modules
 # Force stdin, stdout and stderr to be totally unbuffered. Good for logging
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 LANG=C.UTF-8
 
 # Install dependencies from pip
 # Install Scikit-Learn; 0.20.0 supports both python 2.7+ and 3.4+
