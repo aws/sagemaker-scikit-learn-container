@@ -13,6 +13,7 @@
 from __future__ import absolute_import
 
 import logging
+from retrying import retry
 import numpy as np
 from sagemaker_containers.beta.framework import (
     content_types, encoders, env, modules, transformer, worker)
@@ -91,16 +92,25 @@ def _user_module_transformer(user_module):
 
 app = None
 
+def retry_always(exception):
+    logging.info("Retrying, expcetion is: %s" % (exception))
+    return True
+
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_delay=20000, retry_on_exception=retry_always)
+def init_user_module(serving_env):
+    user_module = modules.import_module(serving_env.module_dir, serving_env.module_name)
+
+    user_module_transformer = _user_module_transformer(user_module)
+
+    user_module_transformer.initialize()
+    return user_module_transformer
 
 def main(environ, start_response):
     global app
     if app is None:
         serving_env = env.ServingEnv()
-        user_module = modules.import_module(serving_env.module_dir, serving_env.module_name)
-
-        user_module_transformer = _user_module_transformer(user_module)
-
-        user_module_transformer.initialize()
+        logging.info("Starting to import module: %s/%s already exists: %s" % (serving_env.module_dir, serving_env.module_name, modules.exists(serving_env.module_name)))
+        user_module_transformer = init_user_module(serving_env)
 
         app = worker.Worker(transform_fn=user_module_transformer.transform,
                             module_name=serving_env.module_name)
