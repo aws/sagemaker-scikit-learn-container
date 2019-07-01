@@ -132,8 +132,8 @@ dependencies.
 
 ::
 
-    git clone https://github.com/aws/sagemaker-sklearn-container.git
-    cd sagemaker-sklearn-container
+    git clone https://github.com/aws/sagemaker-scikit-learn-container.git
+    cd sagemaker-scikit-learn-container
     pip install -e .[test]
 
 Tests are defined in
