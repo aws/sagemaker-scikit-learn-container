@@ -12,10 +12,12 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
+import importlib
 import logging
 import numpy as np
 from sagemaker_containers.beta.framework import (
     content_types, encoders, env, modules, transformer, worker)
+
 
 logging.basicConfig(format='%(asctime)s %(levelname)s - %(name)s - %(message)s', level=logging.INFO)
 
@@ -89,18 +91,32 @@ def _user_module_transformer(user_module):
                                    output_fn=output_fn)
 
 
+def import_module(module_name, module_dir):
+
+    try:  # if module_name already exists, use the existing one
+        user_module = importlib.import_module(module_name)
+    except ImportError:  # if the module has not been loaded, 'modules' downloads and installs it.
+        user_module = modules.import_module(module_dir, module_name)
+    except Exception:  # this shouldn't happen
+        logger.info("Encountered an unexpected error.")
+        raise
+
+    user_module_transformer = _user_module_transformer(user_module)
+    user_module_transformer.initialize()
+
+    return user_module_transformer
+
+
 app = None
 
 
 def main(environ, start_response):
     global app
+
     if app is None:
         serving_env = env.ServingEnv()
-        user_module = modules.import_module(serving_env.module_dir, serving_env.module_name)
 
-        user_module_transformer = _user_module_transformer(user_module)
-
-        user_module_transformer.initialize()
+        user_module_transformer = import_module(serving_env.module_name, serving_env.module_dir)
 
         app = worker.Worker(transform_fn=user_module_transformer.transform,
                             module_name=serving_env.module_name)
