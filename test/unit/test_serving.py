@@ -106,7 +106,7 @@ def test_output_fn_csv(np_array):
     response = serving.default_output_fn(np_array, content_types.CSV)
 
     assert response.get_data(as_text=True) == '1.0,1.0\n1.0,1.0\n'
-    assert response.content_type == content_types.CSV
+    assert content_types.CSV in response.content_type
 
 
 def test_output_fn_npz(np_array):
