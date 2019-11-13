@@ -30,13 +30,18 @@ setup(
         "Natural Language :: English",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
     ],
 
-    install_requires=['numpy', 'pandas', 'retrying==1.3.3', 'sagemaker-containers >= 2.5.10', 'scikit-learn>=0.20.0', 'six'],
+    install_requires=read("requirements.txt"),
+
     extras_require={
-        'test': ['tox', 'flake8', 'coverage', 'pytest', 'pytest-cov', 'pytest-xdist', 'mock', 'Flask', 'boto3>=1.4.8',
-                 'docker-compose', 'sagemaker>=1.3.0', 'PyYAML', 'requests==2.18.4']
+        'test': read("test-requirements.txt")
     },
+
+    entry_points={
+        'console_scripts': 'serve=sagemaker_sklearn_container.serving:main'
+    },
+
+    python_requires='>=3.5',
 )

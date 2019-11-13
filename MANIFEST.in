@@ -1,0 +1,3 @@
+include requirements.txt test-requirements.txt
+
+
