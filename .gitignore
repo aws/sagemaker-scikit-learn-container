@@ -1,0 +1,9 @@
+dist/
+build/
+src/sagemaker_sklearn_container.egg-info/
+.venv
+*~
+.tox
+__pycache__
+.coverage*
+.mypy_cache/
