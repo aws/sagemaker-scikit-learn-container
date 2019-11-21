@@ -19,7 +19,6 @@ from retrying import retry
 from subprocess import CalledProcessError
 
 from sagemaker_containers.beta.framework import env, modules
-# from sagemaker_inference import model_server
 
 from sagemaker_sklearn_container import handler_service
 from sagemaker_sklearn_container.mms_patch import model_server
