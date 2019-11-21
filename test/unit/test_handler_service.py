@@ -100,19 +100,19 @@ def test_predict_fn(np_array):
 def test_output_fn_json(np_array):
     response = handler.default_output_fn(np_array, content_types.JSON)
 
-    assert response == encoders.array_to_json(np_array.tolist())
+    assert response == (encoders.array_to_json(np_array.tolist()), content_types.JSON)
 
 
 def test_output_fn_csv(np_array):
     response = handler.default_output_fn(np_array, content_types.CSV)
 
-    assert response == '1.0,1.0\n1.0,1.0\n'
+    assert response == ('1.0,1.0\n1.0,1.0\n', content_types.CSV)
 
 
 def test_output_fn_npz(np_array):
     response = handler.default_output_fn(np_array, content_types.NPY)
 
-    assert response == encoders.array_to_npy(np_array)
+    assert response == (encoders.array_to_npy(np_array), content_types.NPY)
 
 
 def test_input_fn_bad_accept():

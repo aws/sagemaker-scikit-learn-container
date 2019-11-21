@@ -11,13 +11,15 @@
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
+import logging
 import numpy as np
 import textwrap
 
 from sagemaker_inference import content_types, default_inference_handler
 from sagemaker_inference.default_handler_service import DefaultHandlerService
-from sagemaker_inference.transformer import Transformer
-from sagemaker_containers.beta.framework import encoders
+from sagemaker_inference import encoder, decoder
+
+from sagemaker_sklearn_container.mms_patch.mms_transformer import Transformer
 
 
 class HandlerService(DefaultHandlerService):
@@ -58,7 +60,11 @@ class HandlerService(DefaultHandlerService):
             Returns:
                 (obj): data ready for prediction.
             """
-            np_array = encoders.decode(input_data, content_type)
+            np_array = decoder.decode(input_data, content_type)
+            logging.info(np_array.shape)
+            if len(np_array.shape) == 1:
+                logging.info(np_array.shape)
+                np_array = np_array.reshape(1, -1)
             return np_array.astype(np.float32) if content_type in content_types.UTF8_TYPES else np_array
 
         @staticmethod
@@ -84,7 +90,7 @@ class HandlerService(DefaultHandlerService):
                         response: the serialized data to return
                         accept: the content-type that the data was transformed to.
             """
-            return encoders.encode(prediction, accept)
+            return encoder.encode(prediction, accept), accept
 
     def __init__(self):
         transformer = Transformer(default_inference_handler=self.DefaultSKLearnUserModuleInferenceHandler())

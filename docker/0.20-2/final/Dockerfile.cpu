@@ -1,5 +1,5 @@
-ARG py_version
-FROM sklearn-base:0.20.0-cpu-py3
+FROM sklearn-base:0.20-2-cpu-py3
+ENV SAGEMAKER_SKLEARN_VERSION 0.20-2
 
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
@@ -12,3 +12,18 @@ RUN pip install --no-cache /sagemaker_sklearn_container-1.0-py2.py3-none-any.whl
 
 ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main
 ENV SAGEMAKER_SERVING_MODULE sagemaker_sklearn_container.serving:main
+
+#######
+# MMS #
+#######
+# Create MMS user directory
+RUN useradd -m model-server
+RUN mkdir -p /home/model-server/tmp
+RUN chown -R model-server /home/model-server
+
+# Copy MMS configs
+COPY docker/$SAGEMAKER_SKLEARN_VERSION/resources/mms/config.properties.tmp /home/model-server
+ENV SKLEARN_MMS_CONFIG=/home/model-server/config.properties
+
+# Required label for multi-model loading
+LABEL com.amazonaws.sagemaker.capabilities.multi-models=true
