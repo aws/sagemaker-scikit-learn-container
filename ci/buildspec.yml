@@ -3,8 +3,6 @@ version: 0.2
 env:
   variables:
     SM_SKLEARN_VERSION: '0.20-2'
-
-
 phases:
   install:
     runtime-versions:
