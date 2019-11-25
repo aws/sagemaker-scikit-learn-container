@@ -91,6 +91,10 @@ def _user_module_transformer(user_module):
                                    output_fn=output_fn)
 
 
+def _user_module_execution_parameters_fn(user_module):
+    return getattr(user_module, 'execution_parameters_fn', None)
+
+
 def import_module(module_name, module_dir):
 
     try:  # if module_name already exists, use the existing one
@@ -104,7 +108,7 @@ def import_module(module_name, module_dir):
     user_module_transformer = _user_module_transformer(user_module)
     user_module_transformer.initialize()
 
-    return user_module_transformer
+    return user_module_transformer, _user_module_execution_parameters_fn(user_module)
 
 
 app = None
@@ -116,9 +120,11 @@ def main(environ, start_response):
     if app is None:
         serving_env = env.ServingEnv()
 
-        user_module_transformer = import_module(serving_env.module_name, serving_env.module_dir)
+        user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, 
+                                                                         serving_env.module_dir)
 
         app = worker.Worker(transform_fn=user_module_transformer.transform,
-                            module_name=serving_env.module_name)
+                            module_name=serving_env.module_name,
+                            execution_parameters_fn=execution_parameters_fn)
 
     return app(environ, start_response)

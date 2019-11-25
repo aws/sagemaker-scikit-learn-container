@@ -20,7 +20,7 @@ from sklearn.base import BaseEstimator
 
 from sagemaker_containers.beta.framework import (content_types, encoders, errors)
 from sagemaker_sklearn_container import serving
-from sagemaker_sklearn_container.serving import main, default_model_fn, default_input_fn
+from sagemaker_sklearn_container.serving import default_model_fn, default_input_fn, import_module
 
 
 @pytest.fixture(scope='module', name='np_array')
@@ -35,6 +35,18 @@ class FakeEstimator(BaseEstimator):
     @staticmethod
     def predict(input):
         return
+
+
+def dummy_execution_parameters_fn():
+    return {'dummy': 'dummy'}
+
+
+class DummyUserModule:
+    def __init__(self):
+        self.execution_parameters_fn = dummy_execution_parameters_fn
+
+    def model_fn(self, model_dir):
+        pass
 
 
 @pytest.mark.parametrize(
@@ -119,3 +131,10 @@ def test_output_fn_npz(np_array):
 def test_input_fn_bad_accept():
     with pytest.raises(errors.UnsupportedFormatError):
         serving.default_output_fn('', 'application/not_supported')
+
+@patch('importlib.import_module')
+def test_import_module_execution_parameters(importlib_module_mock):
+    importlib_module_mock.return_value = DummyUserModule()
+    _, execution_parameters_fn = import_module('dummy_module', 'dummy_dir')
+
+    assert execution_parameters_fn == dummy_execution_parameters_fn
