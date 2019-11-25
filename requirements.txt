@@ -1,5 +1,5 @@
 model-archiver
-mxnet-model-server==1.0.8
+multi-model-server==1.0.8.1
 numpy
 pandas
 psutil==5.4.8  # sagemaker-containers requires psutil 5.4.8
