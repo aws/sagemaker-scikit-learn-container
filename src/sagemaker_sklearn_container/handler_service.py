@@ -88,7 +88,6 @@ class HandlerService(DefaultHandlerService):
             """
             return encoder.encode(prediction, accept), accept
 
-
     def __init__(self):
         transformer = Transformer(default_inference_handler=self.DefaultSKLearnUserModuleInferenceHandler())
         super(HandlerService, self).__init__(transformer=transformer)

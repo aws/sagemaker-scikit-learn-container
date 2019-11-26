@@ -16,7 +16,7 @@ from mock import patch
 import numpy as np
 import pytest
 
-from sagemaker_containers.beta.framework import (content_types, encoders, errors)
+from sagemaker_inference import (content_types, encoder, errors)
 from sklearn.base import BaseEstimator
 
 from sagemaker_sklearn_container.handler_service import HandlerService
@@ -41,10 +41,10 @@ class FakeEstimator(BaseEstimator):
 
 @pytest.mark.parametrize(
     'json_data, expected', [
-        ('[42, 6, 9]', np.array([42, 6, 9])),
-        ('[42.0, 6.0, 9.0]', np.array([42., 6., 9.])),
-        ('["42", "6", "9"]', np.array(['42', '6', '9'], dtype=np.float32)),
-        (u'["42", "6", "9"]', np.array([u'42', u'6', u'9'], dtype=np.float32))])
+        ('[42, 6, 9]', np.array([[42, 6, 9]])),
+        ('[42.0, 6.0, 9.0]', np.array([[42., 6., 9.]])),
+        ('["42", "6", "9"]', np.array([['42', '6', '9']], dtype=np.float32)),
+        (u'["42", "6", "9"]', np.array([[u'42', u'6', u'9']], dtype=np.float32))])
 def test_input_fn_json(json_data, expected):
     actual = handler.default_input_fn(json_data, content_types.JSON)
     np.testing.assert_equal(actual, expected)
@@ -52,32 +52,34 @@ def test_input_fn_json(json_data, expected):
 
 @pytest.mark.parametrize(
     'csv_data, expected', [
-        ('42\n6\n9\n', np.array([42, 6, 9], dtype=np.float32)),
-        ('42.0\n6.0\n9.0\n', np.array([42., 6., 9.], dtype=np.float32)),
-        ('42\n6\n9\n', np.array([42, 6, 9], dtype=np.float32))])
+        ('42\n6\n9\n', np.array([[42, 6, 9]], dtype=np.float32)),
+        ('42.0\n6.0\n9.0\n', np.array([[42., 6., 9.]], dtype=np.float32)),
+        ('42\n6\n9\n', np.array([[42, 6, 9]], dtype=np.float32))])
 def test_input_fn_csv(csv_data, expected):
     deserialized_np_array = handler.default_input_fn(csv_data, content_types.CSV)
     assert np.array_equal(expected, deserialized_np_array)
 
 
-@pytest.mark.parametrize('np_array', ([42, 6, 9], [42., 6., 9.]))
-def test_input_fn_npz(np_array):
-    input_data = encoders.array_to_npy(np_array)
+@pytest.mark.parametrize('np_array, expected', [
+    ([42, 6, 9], np.array([[42, 6, 9]], dtype=np.float32)),
+    ([42., 6., 9.], np.array([[42, 6, 9]], dtype=np.float32))])
+def test_input_fn_npz(np_array, expected):
+    input_data = encoder._array_to_npy(np_array)
     deserialized_np_array = handler.default_input_fn(input_data, content_types.NPY)
 
-    assert np.array_equal(np_array, deserialized_np_array)
+    assert np.array_equal(expected, deserialized_np_array)
 
     float_32_array = np.array(np_array, dtype=np.float32)
-    input_data = encoders.array_to_npy(float_32_array)
+    input_data = encoder._array_to_npy(float_32_array)
     deserialized_np_array = handler.default_input_fn(input_data, content_types.NPY)
 
-    assert np.array_equal(float_32_array, deserialized_np_array)
+    assert np.array_equal(expected, deserialized_np_array)
 
     float_64_array = np.array(np_array, dtype=np.float64)
-    input_data = encoders.array_to_npy(float_64_array)
+    input_data = encoder._array_to_npy(float_64_array)
     deserialized_np_array = handler.default_input_fn(input_data, content_types.NPY)
 
-    assert np.array_equal(float_64_array, deserialized_np_array)
+    assert np.array_equal(expected, deserialized_np_array)
 
 
 def test_input_fn_bad_content_type():
@@ -99,7 +101,7 @@ def test_predict_fn(np_array):
 
 def test_output_fn_json(np_array):
     response = handler.default_output_fn(np_array, content_types.JSON)
-    assert response == (encoders.array_to_json(np_array.tolist()), content_types.JSON)
+    assert response == (encoder._array_to_json(np_array.tolist()), content_types.JSON)
 
 
 def test_output_fn_csv(np_array):
@@ -109,7 +111,7 @@ def test_output_fn_csv(np_array):
 
 def test_output_fn_npz(np_array):
     response = handler.default_output_fn(np_array, content_types.NPY)
-    assert response == (encoders.array_to_npy(np_array), content_types.NPY)
+    assert response == (encoder._array_to_npy(np_array), content_types.NPY)
 
 
 def test_input_fn_bad_accept():
