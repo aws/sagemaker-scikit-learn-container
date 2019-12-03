@@ -13,13 +13,14 @@ phases:
     commands:
     - echo Build started on `date`
     - echo Building the Docker image...
-    - docker build -t sklearn-base:0.21.2-cpu-py3  -f docker/0.21.2/base/Dockerfile.cpu .
+    - docker build -t sklearn-base:0.21.2-cpu-py3 -f docker/0.21.2/base/Dockerfile.cpu .
     - pip install wheel setuptools
     - python setup.py bdist_wheel
     - docker build -t preprod-sklearn:0.21.2-cpu-py3 -f docker/0.21.2/final/Dockerfile.cpu .
-    - docker tag preprod-sklearn:0.21.2-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.21.2-cpu-py3
+    - docker build -t preprod-sklearn:extension-1.0.0-cpu-py3 -f docker/0.21.2/extension/Dockerfile.cpu .
+    - docker tag preprod-sklearn:extension-1.0.0-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-sklearn-automl:1.0.0-cpu-py3
   post_build:
     commands:
     - echo Build completed on `date`
     - echo Pushing the Docker image...
-    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.21.2-cpu-py3
+    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-sklearn-automl:1.0.0-cpu-py3

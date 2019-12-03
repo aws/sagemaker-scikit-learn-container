@@ -12,13 +12,13 @@ RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.s
 ENV PATH=/miniconda3/bin:${PATH}
 
 RUN conda update -y conda && \
-    conda install -c conda-forge pyarrow=0.14.1 && \
-    conda install -c mlio -c conda-forge mlio-py=0.1 && \
+    conda install -c conda-forge pyarrow=0.15.1 && \
+    conda install -c mlio -c conda-forge mlio-py=0.2 && \
     conda install -c anaconda scipy
 
 # Python won’t try to write .pyc or .pyo files on the import of source modules
 # Force stdin, stdout and stderr to be totally unbuffered. Good for logging
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8 LANG=C.UTF-8 LC_ALL=C.UTF-8
 
-# Install Scikit-Learn; 0.20.0 supports both python 2.7+ and 3.4+
-RUN pip install --no-cache -I scikit-learn==0.20.0 retrying
+# Install Scikit-Learn; 0.21.2 supports python 3.4+
+RUN pip install --no-cache -I scikit-learn==0.21.2 retrying
