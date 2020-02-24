@@ -49,12 +49,12 @@ The "extension" Dockerfiles use final images for building.
 
 Build the third additional Dockerfile needed for SageMaker Scikit-learn Extension Container. This Dockerfile specifies a hard dependecy on a certain version of scikit-learn (i.e. v0.21.2).
 
-Tagging scheme is based on extension-<SageMaker-Scikit-learn-Extension_version>-cpu-py<python_version>. (e.g. extension-1.0.0-cpu-py3)
+Tagging scheme is based on extension-<SageMaker-Scikit-learn-Extension_version>-cpu-py<python_version>. (e.g. extension-0.1.0-cpu-py3)
 
 Before building the "extension" image:
 
-Build your "base" and "final" images. Make sure the "extension" image is tagged in accordance with the prefix `extension` and your version of [sagemaker-scikit-learn-extension](https://github.com/aws/sagemaker-scikit-learn-extension) in the Dockerfile (i.e. `extension-1.0.0-cpu-py3`).
+Build your "base" and "final" images. Make sure the "extension" image is tagged in accordance with the prefix `extension` and your version of [sagemaker-scikit-learn-extension](https://github.com/aws/sagemaker-scikit-learn-extension) in the Dockerfile (i.e. `extension-0.1.0-cpu-py3`).
 
 ```
-docker build -t preprod-sklearn:extension-1.0.0-cpu-py3 -f  docker/0.21.2/extension/Dockerfile.cpu .
+docker build -t preprod-sklearn:extension-0.1.0-cpu-py3 -f  docker/0.21.2/extension/Dockerfile.cpu .
 ```
