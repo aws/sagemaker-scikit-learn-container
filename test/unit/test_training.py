@@ -14,7 +14,7 @@ from __future__ import absolute_import
 
 from mock import MagicMock, patch
 
-import sagemaker_containers.beta.framework as framework
+from sagemaker_training import runner
 from sagemaker_sklearn_container import training
 
 
@@ -22,13 +22,13 @@ def mock_training_env(current_host='algo-1', module_dir='s3://my/script', user_e
     return MagicMock(current_host=current_host, module_dir=module_dir, user_entry_point=user_entry_point, **kwargs)
 
 
-@patch('sagemaker_containers.beta.framework.modules.download_and_install')
-@patch('sagemaker_containers.beta.framework.entry_point.run')
-def test_single_machine(run_entry_point, download_and_install):
+@patch('sagemaker_training.entry_point.run')
+def test_single_machine(run_entry_point):
     env = mock_training_env()
     training.train(env)
 
-    download_and_install.assert_called_with(env.module_dir)
-
-    run_entry_point.assert_called_with(env.module_dir, env.user_entry_point, env.to_cmd_args(), env.to_env_vars(),
-                                       runner=framework.runner.ProcessRunnerType)
+    run_entry_point.assert_called_with(uri=env.module_dir,
+                                       user_entry_point=env.user_entry_point,
+                                       args=env.to_cmd_args(),
+                                       env_vars=env.to_env_vars(),
+                                       runner_type=runner.ProcessRunnerType)
