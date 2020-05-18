@@ -13,7 +13,7 @@
 from __future__ import absolute_import
 import logging
 
-import sagemaker_containers.beta.framework as framework
+from sagemaker_training import entry_point, environment, runner
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +28,12 @@ def train(training_environment):
                                training arguments and hyperparameters
     """
     logger.info('Invoking user training script.')
-    framework.modules.download_and_install(training_environment.module_dir)
-    framework.entry_point.run(training_environment.module_dir, training_environment.user_entry_point,
-                              training_environment.to_cmd_args(), training_environment.to_env_vars(),
-                              runner=framework.runner.ProcessRunnerType)
+    entry_point.run(uri=training_environment.module_dir,
+                    user_entry_point=training_environment.user_entry_point,
+                    args=training_environment.to_cmd_args(),
+                    env_vars=training_environment.to_env_vars(),
+                    runner_type=runner.ProcessRunnerType)
 
 
 def main():
-    train(framework.training_env())
+    train(environment.Environment())
