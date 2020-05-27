@@ -65,7 +65,7 @@ Base Images
 The "base" Dockerfile encompass the installation of the framework and all of the dependencies
 needed.
 
-Tagging scheme is based on <Scikit-learn_version>-cpu-py<python_version>. (e.g. 0.20.0-cpu-py3)
+Tagging scheme is based on <Scikit-learn_version>-cpu-py<python_version>. (e.g. 0.23.1-cpu-py3)
 
 All "final" Dockerfiles build images using base images that use the tagging scheme
 above.
@@ -77,14 +77,14 @@ If you want to build your base docker image, then use:
     # All build instructions assume you're building from the root directory of the sagemaker-scikit-learn-container.
 
     # CPU
-    docker build -t sklearn-base:<Scikit-learn_version>-cpu-py<python_version> -f docker/<Scikit-learn_version>/base/Dockerfile.cpu --build-arg py_version=<python_version> .
+    docker build -t sklearn-base:<Scikit-learn_version>-cpu-py<python_version> -f docker/<Scikit-learn_version>/base/Dockerfile.cpu .
 
 ::
 
     # Example
 
     # CPU
-    docker build -t sklearn-base:0.20.0-cpu-py3 -f docker/0.20.0/base/Dockerfile.cpu --build-arg py_version=3 .
+    docker build -t sklearn-base:0.23.1-cpu-py3 -f docker/0.23.1/base/Dockerfile.cpu .
 
 
 Final Images
@@ -114,14 +114,14 @@ If you want to build "final" Docker images, then use:
     # All build instructions assume you're building from the root directory of the sagemaker-scikit-learn-container.
 
     # CPU
-    docker build -t <image_name>:<tag> -f docker/<Scikit-learn_version>/final/Dockerfile.cpu --build-arg py_version=<python_version> .
+    docker build -t <image_name>:<tag> -f docker/<Scikit-learn_version>/final/Dockerfile.cpu .
 
 ::
 
     # Example
 
     # CPU
-    docker build -t preprod-sklearn:0.20.0-cpu-py3 -f docker/0.20.0/final/Dockerfile.cpu --build-arg py_version=3 .
+    docker build -t preprod-sklearn:0.23.1-cpu-py3 -f docker/0.23.1/final/Dockerfile.cpu .
 
 
 Running the tests

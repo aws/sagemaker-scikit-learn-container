@@ -3,7 +3,15 @@ FROM ubuntu:16.04
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
 RUN apt-get update && \
-    apt-get -y install build-essential libatlas-dev git wget curl nginx jq libatlas3-base
+    apt-get -y install \
+        build-essential \
+        libatlas-dev \
+        git \
+        wget \
+        curl \
+        nginx \
+        jq \
+        libatlas3-base
 
 RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     bash Miniconda3-latest-Linux-x86_64.sh -bfp /miniconda3 && \
@@ -20,5 +28,7 @@ RUN conda update -y conda && \
 # Force stdin, stdout and stderr to be totally unbuffered. Good for logging
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8 LANG=C.UTF-8 LC_ALL=C.UTF-8
 
-# Install Scikit-Learn; 0.20.0 supports both python 2.7+ and 3.4+
-RUN python -m pip install --no-cache -I scikit-learn==0.20.0
+# Install Scikit-Learn
+# Scikit-learn 0.20 was the last version to support Python 2.7 and Python 3.4.
+# Scikit-learn now requires Python 3.6 or newer.
+RUN python -m pip install --no-cache -I scikit-learn==0.23.1
