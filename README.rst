@@ -65,7 +65,7 @@ Base Images
 The "base" Dockerfile encompass the installation of the framework and all of the dependencies
 needed.
 
-Tagging scheme is based on <Scikit-learn_version>-cpu-py<python_version>. (e.g. 0.23.1-cpu-py3)
+Tagging scheme is based on <Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version>. (e.g. 0.23.1-1-cpu-py3)
 
 All "final" Dockerfiles build images using base images that use the tagging scheme
 above.
@@ -77,14 +77,14 @@ If you want to build your base docker image, then use:
     # All build instructions assume you're building from the root directory of the sagemaker-scikit-learn-container.
 
     # CPU
-    docker build -t sklearn-base:<Scikit-learn_version>-cpu-py<python_version> -f docker/<Scikit-learn_version>/base/Dockerfile.cpu .
+    docker build -t sklearn-base:<Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version> -f docker/<Scikit-learn_version>-<SageMaker_version>/base/Dockerfile.cpu .
 
 ::
 
     # Example
 
     # CPU
-    docker build -t sklearn-base:0.23.1-cpu-py3 -f docker/0.23.1/base/Dockerfile.cpu .
+    docker build -t sklearn-base:0.23.1-1-cpu-py3 -f docker/0.23.1-1/base/Dockerfile.cpu .
 
 
 Final Images
@@ -95,7 +95,7 @@ The "final" Dockerfiles encompass the installation of the SageMaker specific sup
 All "final" Dockerfiles use base images for building.
 
 These "base" images are specified with the naming convention of
-sklearn-base:<Scikit-learn_version>-cpu-py<python_version>.
+sklearn-base:<Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version>.
 
 Before building "final" images:
 
@@ -114,14 +114,14 @@ If you want to build "final" Docker images, then use:
     # All build instructions assume you're building from the root directory of the sagemaker-scikit-learn-container.
 
     # CPU
-    docker build -t <image_name>:<tag> -f docker/<Scikit-learn_version>/final/Dockerfile.cpu .
+    docker build -t <image_name>:<tag> -f docker/<Scikit-learn_version>-<SageMaker_version>/final/Dockerfile.cpu .
 
 ::
 
     # Example
 
     # CPU
-    docker build -t preprod-sklearn:0.23.1-cpu-py3 -f docker/0.23.1/final/Dockerfile.cpu .
+    docker build -t preprod-sklearn:0.23.1-1-cpu-py3 -f docker/0.23.1-1/final/Dockerfile.cpu .
 
 
 Running the tests
@@ -187,7 +187,7 @@ If you want to run local integration tests, then use:
     pytest test/integration/local --docker-base-name preprod-sklearn \
                       --tag 1.0 \
                       --py-version 3 \
-                      --framework-version 0.20.0
+                      --framework-version 0.23.1
 
 SageMaker Integration Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
