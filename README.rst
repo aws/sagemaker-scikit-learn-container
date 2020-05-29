@@ -65,7 +65,7 @@ Base Images
 The "base" Dockerfile encompass the installation of the framework and all of the dependencies
 needed.
 
-Tagging scheme is based on <Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version>. (e.g. 0.23.1-1-cpu-py3)
+Tagging scheme is based on <Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version>. (e.g. |FRAMEWORK_VERSION|-cpu-py3)
 
 All "final" Dockerfiles build images using base images that use the tagging scheme
 above.
@@ -79,12 +79,11 @@ If you want to build your base docker image, then use:
     # CPU
     docker build -t sklearn-base:<Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version> -f docker/<Scikit-learn_version>-<SageMaker_version>/base/Dockerfile.cpu .
 
-::
+.. parsed-literal::
 
     # Example
-
     # CPU
-    docker build -t sklearn-base:0.23.1-1-cpu-py3 -f docker/0.23.1-1/base/Dockerfile.cpu .
+    docker build -t sklearn-base:|FRAMEWORK_VERSION|-cpu-py3 -f docker/|FRAMEWORK_VERSION|/base/Dockerfile.cpu .
 
 
 Final Images
@@ -116,13 +115,12 @@ If you want to build "final" Docker images, then use:
     # CPU
     docker build -t <image_name>:<tag> -f docker/<Scikit-learn_version>-<SageMaker_version>/final/Dockerfile.cpu .
 
-::
+.. parsed-literal::
 
     # Example
 
     # CPU
-    docker build -t preprod-sklearn:0.23.1-1-cpu-py3 -f docker/0.23.1-1/final/Dockerfile.cpu .
-
+    docker build -t preprod-sklearn:|FRAMEWORK_VERSION|-cpu-py3 -f docker/|FRAMEWORK_VERSION|/final/Dockerfile.cpu .
 
 Running the tests
 -----------------
@@ -181,13 +179,15 @@ If you want to run local integration tests, then use:
                       --py-version <2_or_3> \
                       --framework-version <Scikit-learn_version>
 
-::
 
-    # Example
-    pytest test/integration/local --docker-base-name preprod-sklearn \
-                      --tag 1.0 \
-                      --py-version 3 \
-                      --framework-version 0.23.1
+.. parsed-literal::
+
+  # Example
+  pytest test/integration/local --docker-base-name preprod-sklearn ``\``
+                                --tag 1.0 ``\``
+                                --py-version 3 ``\``
+                                --framework-version |FRAMEWORK_VERSION|
+
 
 SageMaker Integration Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -241,3 +241,5 @@ License
 SageMaker Scikit-learn Container is licensed under the Apache 2.0 License. It is copyright 2018 Amazon
 .com, Inc. or its affiliates. All Rights Reserved. The license is available at:
 http://aws.amazon.com/apache2.0/
+
+.. |FRAMEWORK_VERSION| replace:: 0.23.1-1
