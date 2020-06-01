@@ -1,112 +1,132 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License"). You
-# may not use this file except in compliance with the License. A copy of
-# the License is located at
-#
-#     http://aws.amazon.com/apache2.0/
-#
-# or in the "license" file accompanying this file. This file is
-# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
-# ANY KIND, either express or implied. See the License for the specific
-# language governing permissions and limitations under the License.
 from __future__ import absolute_import
+
+import importlib
 import logging
-from math import ceil
-import multiprocessing
-import os
-from retrying import retry
-from subprocess import CalledProcessError
-
-from sagemaker_containers.beta.framework import env, modules
-
-from sagemaker_sklearn_container import handler_service
-from sagemaker_sklearn_container.mms_patch import model_server
-
-HANDLER_SERVICE = handler_service.__name__
-
-PORT = 8080
-DEFAULT_MAX_CONTENT_LEN = 6 * 1024**2
-MAX_CONTENT_LEN_LIMIT = 20 * 1024**2
+import numpy as np
+from sagemaker_containers.beta.framework import (
+    content_types, encoders, env, modules, transformer, worker)
 
 
-def _retry_if_error(exception):
-    return isinstance(exception, CalledProcessError or OSError)
+logging.basicConfig(format='%(asctime)s %(levelname)s - %(name)s - %(message)s', level=logging.INFO)
+
+logging.getLogger('boto3').setLevel(logging.INFO)
+logging.getLogger('s3transfer').setLevel(logging.INFO)
+logging.getLogger('botocore').setLevel(logging.WARN)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+def is_multi_model():
+    return os.environ.get('SAGEMAKER_MULTI_MODEL')
 
 
-@retry(stop_max_delay=1000 * 30, retry_on_exception=_retry_if_error)
-def _start_model_server(is_multi_model, handler):
-    # there's a race condition that causes the model server command to
-    # sometimes fail with 'bad address'. more investigation needed
-    # retry starting mms until it's ready
-    logging.info("Trying to set up model server handler: {}".format(handler))
-    _set_mms_configs(is_multi_model, handler)
-    model_server.start_model_server(handler_service=handler,
-                                    is_multi_model=is_multi_model,
-                                    config_file=os.environ['SKLEARN_MMS_CONFIG'])
-
-
-def _set_mms_configs(is_multi_model, handler):
-    """Set environment variables for MMS to parse during server initialization. These env vars are used to
-    propagate the config.properties.tmp file used during MxNet Model Server initialization.
-    'SAGEMAKER_MMS_MODEL_STORE' has to be set to the model location during single model inference because MMS
-    is initialized with the model. In multi-model mode, MMS is started with no models loaded.
-    Note: Ideally, instead of relying on env vars, this should be written directly to a config file.
+def default_model_fn(model_dir):
+    """Loads a model. For Scikit-learn, a default function to load a model is not provided.
+    Users should provide customized model_fn() in script.
+    Args:
+        model_dir: a directory where model is saved.
+    Returns: A Scikit-learn model.
     """
-    max_content_length = os.getenv("MAX_CONTENT_LENGTH", DEFAULT_MAX_CONTENT_LEN)
-    if int(max_content_length) > MAX_CONTENT_LEN_LIMIT:
-        # Cap at 20mb
-        max_content_length = MAX_CONTENT_LEN_LIMIT
+    return transformer.default_model_fn(model_dir)
 
-    max_workers = multiprocessing.cpu_count()
 
-    if is_multi_model:
-        os.environ["SAGEMAKER_NUM_MODEL_WORKERS"] = '1'
-        os.environ["SAGEMAKER_MMS_MODEL_STORE"] = '/'
-        os.environ["SAGEMAKER_MMS_LOAD_MODELS"] = ''
+def default_input_fn(input_data, content_type):
+    """Takes request data and de-serializes the data into an object for prediction.
+        When an InvokeEndpoint operation is made against an Endpoint running SageMaker model server,
+        the model server receives two pieces of information:
+            - The request Content-Type, for example "application/json"
+            - The request data, which is at most 5 MB (5 * 1024 * 1024 bytes) in size.
+        The input_fn is responsible to take the request data and pre-process it before prediction.
+    Args:
+        input_data (obj): the request data.
+        content_type (str): the request Content-Type.
+    Returns:
+        (obj): data ready for prediction.
+    """
+    np_array = encoders.decode(input_data, content_type)
+    return np_array.astype(np.float32) if content_type in content_types.UTF8_TYPES else np_array
+
+
+def default_predict_fn(input_data, model):
+    """A default predict_fn for Scikit-learn. Calls a model on data deserialized in input_fn.
+    Args:
+        input_data: input data (Numpy array) for prediction deserialized by input_fn
+        model: Scikit-learn model loaded in memory by model_fn
+    Returns: a prediction
+    """
+    output = model.predict(input_data)
+    return output
+
+
+def default_output_fn(prediction, accept):
+    """Function responsible to serialize the prediction for the response.
+    Args:
+        prediction (obj): prediction returned by predict_fn .
+        accept (str): accept content-type expected by the client.
+    Returns:
+        (worker.Response): a Flask response object with the following args:
+            * Args:
+                response: the serialized data to return
+                accept: the content-type that the data was transformed to.
+    """
+    return worker.Response(encoders.encode(prediction, accept), accept, mimetype=accept)
+
+
+def _user_module_transformer(user_module):
+    model_fn = getattr(user_module, 'model_fn', default_model_fn)
+    input_fn = getattr(user_module, 'input_fn', default_input_fn)
+    predict_fn = getattr(user_module, 'predict_fn', default_predict_fn)
+    output_fn = getattr(user_module, 'output_fn', default_output_fn)
+
+    return transformer.Transformer(model_fn=model_fn, input_fn=input_fn, predict_fn=predict_fn,
+                                   output_fn=output_fn)
+
+
+def _user_module_execution_parameters_fn(user_module):
+    return getattr(user_module, 'execution_parameters_fn', None)
+
+
+def import_module(module_name, module_dir):
+
+    try:  # if module_name already exists, use the existing one
+        user_module = importlib.import_module(module_name)
+    except ImportError:  # if the module has not been loaded, 'modules' downloads and installs it.
+        user_module = modules.import_module(module_dir, module_name)
+    except Exception:  # this shouldn't happen
+        logger.info("Encountered an unexpected error.")
+        raise
+
+    user_module_transformer = _user_module_transformer(user_module)
+    user_module_transformer.initialize()
+
+    return user_module_transformer, _user_module_execution_parameters_fn(user_module)
+
+
+app = None
+
+
+def main(environ, start_response):
+    global app
+
+    if app is None:
+        serving_env = env.ServingEnv()
+
+        user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, 
+                                                                         serving_env.module_dir)
+
+        app = worker.Worker(transform_fn=user_module_transformer.transform,
+                            module_name=serving_env.module_name,
+                            execution_parameters_fn=execution_parameters_fn)
+
+    return app(environ, start_response)
+
+def serving_entrypoint():
+    """Start Inference Server.
+
+    NOTE: If the inference server is multi-model, MxNet Model Server will be used as the base server. Otherwise,
+        GUnicorn is used as the base server.
+    """
+    if is_multi_model():
+        start_model_server()
     else:
-        os.environ["SAGEMAKER_NUM_MODEL_WORKERS"] = str(max_workers)
-        os.environ["SAGEMAKER_MMS_MODEL_STORE"] = '/opt/ml/model'
-        os.environ["SAGEMAKER_MMS_LOAD_MODELS"] = 'ALL'
-
-    if not os.getenv("SAGEMAKER_BIND_TO_PORT", None):
-        os.environ["SAGEMAKER_BIND_TO_PORT"] = str(PORT)
-
-    # Max heap size = max workers * max payload size * 1.2 (20% buffer) + 128 (base amount)
-    max_heap_size = ceil(max_workers * (int(max_content_length) / 1024**2) * 1.2) + 128
-    os.environ["SAGEMAKER_MAX_HEAP_SIZE"] = str(max_heap_size) + 'm'
-    os.environ["SAGEMAKER_MAX_DIRECT_MEMORY_SIZE"] = os.environ["SAGEMAKER_MAX_HEAP_SIZE"]
-
-    os.environ["SAGEMAKER_MAX_REQUEST_SIZE"] = str(max_content_length)
-    os.environ["SAGEMAKER_MMS_DEFAULT_HANDLER"] = handler
-
-    # TODO: Revert config.properties.tmp to config.properties and add back in vmargs
-    # set with environment variables after MMS implements parsing environment variables
-    # for vmargs, update MMS section of final/Dockerfile.cpu to match, and remove the
-    # following code.
-    try:
-        with open('/home/model-server/config.properties.tmp', 'r') as f:
-            with open('/home/model-server/config.properties', 'w+') as g:
-                g.write("vmargs=-XX:-UseLargePages -XX:+UseG1GC -XX:MaxMetaspaceSize=32M -XX:+ExitOnOutOfMemoryError "
-                        + "-Xmx" + os.environ["SAGEMAKER_MAX_HEAP_SIZE"]
-                        + " -XX:MaxDirectMemorySize=" + os.environ["SAGEMAKER_MAX_DIRECT_MEMORY_SIZE"] + "\n")
-                g.write(f.read())
-    except Exception:
-        pass
-
-
-def _is_multi_model_endpoint():
-    if "SAGEMAKER_MULTI_MODEL" in os.environ and os.environ["SAGEMAKER_MULTI_MODEL"] == 'true':
-        return True
-    else:
-        return False
-
-
-def main():
-    serving_env = env.ServingEnv()
-    modules.import_module(serving_env.module_dir, serving_env.module_name)
-
-    is_multi_model = _is_multi_model_endpoint()
-    _set_mms_configs(is_multi_model, HANDLER_SERVICE)
-
-    _start_model_server(is_multi_model, HANDLER_SERVICE)
+        server.start(env.ServingEnv().framework_module)
