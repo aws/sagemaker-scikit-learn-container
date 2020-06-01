@@ -3,7 +3,6 @@ version: 0.2
 env:
   variables:
     SM_SKLEARN_VERSION: '0.20-2'
-
 phases:
   install:
     runtime-versions:
@@ -21,9 +20,9 @@ phases:
     - pip install wheel setuptools
     - python setup.py bdist_wheel
     - docker build -t preprod-sklearn:$SM_SKLEARN_VERSION-cpu-py3 -f docker/$SM_SKLEARN_VERSION/final/Dockerfile.cpu .
-    - docker tag preprod-sklearn:$SM_SKLEARN_VERSION-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$SM_SKLEARN_VERSION-cpu-py3
+    - docker tag preprod-sklearn:$SM_SKLEARN_VERSION-cpu-py3 878107166805.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$SM_SKLEARN_VERSION-cpu-py3
   post_build:
     commands:
     - echo Build completed on `date`
     - echo Pushing the Docker image...
-    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$SM_SKLEARN_VERSION-cpu-py3
+    - docker push 878107166805.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$SM_SKLEARN_VERSION-cpu-py3
