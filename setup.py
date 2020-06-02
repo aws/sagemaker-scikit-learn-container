@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name='sagemaker_sklearn_container',
-    version='1.0',
+    version='2.0',
     description='Open source library for creating SciKit-Learn containers to run on Amazon SageMaker.',
 
     packages=find_packages(where='src', exclude=('test',)),
@@ -30,8 +30,8 @@ setup(
         "Natural Language :: English",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
 
     install_requires=read("requirements.txt"),
