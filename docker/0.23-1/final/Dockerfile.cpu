@@ -1,5 +1,5 @@
-FROM sklearn-base:0.23.1-1-cpu-py3
-ENV SAGEMAKER_SKLEARN_VERSION 0.23.1-1
+FROM sklearn-base:0.23-1-cpu-py3
+ENV SAGEMAKER_SKLEARN_VERSION 0.23-1
 
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
@@ -25,6 +25,30 @@ RUN chown -R model-server /home/model-server
 # Copy MMS configs
 COPY docker/$SAGEMAKER_SKLEARN_VERSION/resources/mms/config.properties.tmp /home/model-server
 ENV SKLEARN_MMS_CONFIG=/home/model-server/config.properties
+
+# Copy execution parameters endpoint plugin for MMS
+RUN mkdir -p /tmp/plugins
+COPY docker/$SAGEMAKER_SKLEARN_VERSION/resources/mms/endpoints-1.0.jar /tmp/plugins
+RUN chmod +x /tmp/plugins/endpoints-1.0.jar
+
+# Create directory for models
+RUN mkdir -p /opt/ml/models
+RUN chmod +rwx /opt/ml/models
+
+#####################
+# Required ENV vars #
+#####################
+# Set SageMaker training environment variables
+ENV SM_INPUT /opt/ml/input
+ENV SM_INPUT_TRAINING_CONFIG_FILE $SM_INPUT/config/hyperparameters.json
+ENV SM_INPUT_DATA_CONFIG_FILE $SM_INPUT/config/inputdataconfig.json
+ENV SM_CHECKPOINT_CONFIG_FILE $SM_INPUT/config/checkpointconfig.json
+
+# Set SageMaker serving environment variables
+ENV SM_MODEL_DIR /opt/ml/model
+
+EXPOSE 8080
+ENV TEMP=/home/model-server/tmp
 
 # Required label for multi-model loading
 LABEL com.amazonaws.sagemaker.capabilities.multi-models=true

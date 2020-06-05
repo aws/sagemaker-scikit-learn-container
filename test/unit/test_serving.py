@@ -12,15 +12,16 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
-from mock import patch
+from mock import patch, MagicMock
 import numpy as np
 import pytest
+import os
 
 from sklearn.base import BaseEstimator
 
 from sagemaker_containers.beta.framework import (content_types, encoders, errors)
 from sagemaker_sklearn_container import serving
-from sagemaker_sklearn_container.serving import default_model_fn, default_input_fn, import_module
+from sagemaker_sklearn_container.serving import default_model_fn, import_module
 
 
 @pytest.fixture(scope='module', name='np_array')
@@ -132,9 +133,24 @@ def test_input_fn_bad_accept():
     with pytest.raises(errors.UnsupportedFormatError):
         serving.default_output_fn('', 'application/not_supported')
 
+
 @patch('importlib.import_module')
 def test_import_module_execution_parameters(importlib_module_mock):
     importlib_module_mock.return_value = DummyUserModule()
     _, execution_parameters_fn = import_module('dummy_module', 'dummy_dir')
 
     assert execution_parameters_fn == dummy_execution_parameters_fn
+
+
+@patch('sagemaker_sklearn_container.serving.server')
+def test_serving_entrypoint_start_gunicorn(mock_server):
+    mock_server.start = MagicMock()
+    serving.serving_entrypoint()
+    mock_server.start.assert_called_once()
+
+
+@patch.dict(os.environ, {'SAGEMAKER_MULTI_MODEL': 'True', })
+@patch('sagemaker_sklearn_container.serving.start_model_server')
+def test_serving_entrypoint_start_mms(mock_start_model_server):
+    serving.serving_entrypoint()
+    mock_start_model_server.assert_called_once()

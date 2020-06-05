@@ -3,10 +3,6 @@ FROM ubuntu:16.04
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
 RUN apt-get update && \
-<<<<<<< HEAD:docker/0.20-2/base/Dockerfile.cpu
-    apt-get -y install build-essential libatlas-dev git wget curl nginx jq libatlas3-base && \
-    apt-get -y install openjdk-8-jdk-headless
-=======
     apt-get -y install \
         build-essential \
         libatlas-dev \
@@ -15,8 +11,8 @@ RUN apt-get update && \
         curl \
         nginx \
         jq \
-        libatlas3-base
->>>>>>> upstream_scikit_learn_0.23-1:docker/0.23.1-1/base/Dockerfile.cpu
+        libatlas3-base \
+	openjdk-8-jdk-headless
 
 RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     bash Miniconda3-latest-Linux-x86_64.sh -bfp /miniconda3 && \

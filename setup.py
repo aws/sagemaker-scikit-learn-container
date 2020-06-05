@@ -41,7 +41,7 @@ setup(
     },
 
     entry_points={
-        'console_scripts': 'serve=sagemaker_sklearn_container.serving:main'
+        'console_scripts': 'serve=sagemaker_sklearn_container.serving:serving_entrypoint'
     },
 
     python_requires='>=3.6',
