@@ -1,4 +1,4 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
 # may not use this file except in compliance with the License. A copy of
@@ -12,9 +12,12 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 import logging
+import pkg_resources
 from math import ceil
 import multiprocessing
 import os
+import sagemaker_inference
+
 from retrying import retry
 from subprocess import CalledProcessError
 
@@ -30,6 +33,8 @@ DEFAULT_MAX_CONTENT_LEN = 6 * 1024 ** 2
 MAX_CONTENT_LEN_LIMIT = 20 * 1024 ** 2
 MMS_NUM_MODEL_WORKERS_INIT = 1
 MMS_MODEL_JOB_QUEUE_SIZE_DEFAULT = 100
+MME_MMS_CONFIG_FILE = pkg_resources.resource_filename(
+    sagemaker_inference.__name__, "/etc/mme-mms.properties")
 
 
 def get_mms_config_file_path():

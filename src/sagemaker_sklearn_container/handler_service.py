@@ -1,4 +1,4 @@
-# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
 # may not use this file except in compliance with the License. A copy of
@@ -16,8 +16,7 @@ import textwrap
 
 from sagemaker_inference import content_types, decoder, default_inference_handler, encoder
 from sagemaker_inference.default_handler_service import DefaultHandlerService
-
-from sagemaker_sklearn_container.mms_patch.mms_transformer import Transformer
+from sagemaker_inference.transformer import Transformer
 
 
 class HandlerService(DefaultHandlerService):
