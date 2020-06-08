@@ -1,23 +1,23 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License"). You
+# Licensed under the Apache License, Version 2.0 (the 'License'). You
 # may not use this file except in compliance with the License. A copy of
 # the License is located at
 #
 #     http://aws.amazon.com/apache2.0/
 #
-# or in the "license" file accompanying this file. This file is
-# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
+# or in the 'license' file accompanying this file. This file is
+# distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
-
+import os
 import importlib
 import logging
 import numpy as np
 from sagemaker_containers.beta.framework import (
-    content_types, encoders, env, modules, transformer, worker)
-
+    content_types, encoders, env, modules, transformer, worker, server)
+from sagemaker_sklearn_container.serving_mms import start_model_server
 
 logging.basicConfig(format='%(asctime)s %(levelname)s - %(name)s - %(message)s', level=logging.INFO)
 
@@ -27,6 +27,10 @@ logging.getLogger('botocore').setLevel(logging.WARN)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+
+def is_multi_model():
+    return os.environ.get('SAGEMAKER_MULTI_MODEL')
 
 
 def default_model_fn(model_dir):
@@ -120,7 +124,7 @@ def main(environ, start_response):
     if app is None:
         serving_env = env.ServingEnv()
 
-        user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name, 
+        user_module_transformer, execution_parameters_fn = import_module(serving_env.module_name,
                                                                          serving_env.module_dir)
 
         app = worker.Worker(transform_fn=user_module_transformer.transform,
@@ -128,3 +132,15 @@ def main(environ, start_response):
                             execution_parameters_fn=execution_parameters_fn)
 
     return app(environ, start_response)
+
+
+def serving_entrypoint():
+    """Start Inference Server.
+
+    NOTE: If the inference server is multi-model, MxNet Model Server will be used as the base server. Otherwise,
+        GUnicorn is used as the base server.
+    """
+    if is_multi_model():
+        start_model_server()
+    else:
+        server.start(env.ServingEnv().framework_module)

@@ -37,6 +37,12 @@ setup(
     install_requires=read("requirements.txt"),
 
     extras_require={
-        "test": read("test-requirements.txt")
+        'test': read("test-requirements.txt")
     },
+
+    entry_points={
+        'console_scripts': 'serve=sagemaker_sklearn_container.serving:serving_entrypoint'
+    },
+
+    python_requires='>=3.6',
 )
