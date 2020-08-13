@@ -18,10 +18,10 @@ phases:
     commands:
     - echo Build started on `date`
     - echo Building the Docker image...
-    - docker build -t sklearn-base:$FRAMEWORK_VERSION-cpu-py3  -f docker/$SKLEARN_FRAMEWORK_VERSION/base/Dockerfile.cpu .
+    - docker build -t sklearn-base:$SKLEARN_FRAMEWORK_VERSION-cpu-py3  -f docker/$SKLEARN_FRAMEWORK_VERSION/base/Dockerfile.cpu .
     - pip install wheel setuptools
     - python setup.py bdist_wheel
-    - docker build -t preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 -f docker/$SKLEARN_FRAMEWORK_VERSION/final/Dockerfile.cpu .
+    - docker build -t preprod-sklearn:$SKLEARN_FRAMEWORK_VERSION-cpu-py3 -f docker/$SKLEARN_FRAMEWORK_VERSION/final/Dockerfile.cpu .
     - docker build -t preprod-sklearn:extension-$EXTENSION_FRAMEWORK_VERSION-cpu-py3 -f docker/$SKLEARN_FRAMEWORK_VERSION/extension/Dockerfile.cpu .
     - docker tag preprod-sklearn:extension-$EXTENSION_FRAMEWORK_VERSION-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-sklearn-automl:$EXTENSION_FRAMEWORK_VERSION-cpu-py3
   post_build:
