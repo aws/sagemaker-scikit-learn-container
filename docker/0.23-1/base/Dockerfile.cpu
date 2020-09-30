@@ -2,6 +2,8 @@ ARG UBUNTU_VERSION=16.04
 
 FROM ubuntu:${UBUNTU_VERSION}
 
+ARG CONDA_VERSION=4.8.3
+ARG CONDA_PY_VERSION=37
 ARG PYTHON_VERSION=3.7
 ARG PYARROW_VERSION=0.16.0
 ARG MLIO_VERSION=0.5.1
@@ -20,9 +22,10 @@ RUN apt-get update && \
         libatlas3-base \
         openjdk-8-jdk-headless
 
-RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -bfp /miniconda3 && \
-    rm Miniconda3-latest-Linux-x86_64.sh
+RUN cd /tmp && \
+    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${CONDA_VERSION}-Linux-x86_64.sh && \
+    bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
+    rm /tmp/Miniconda3.sh
 
 ENV PATH=/miniconda3/bin:${PATH}
 
