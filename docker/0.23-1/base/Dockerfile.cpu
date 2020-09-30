@@ -1,4 +1,10 @@
-FROM ubuntu:16.04
+ARG UBUNTU_VERSION=16.04
+
+FROM ubuntu:${UBUNTU_VERSION}
+
+ARG PYTHON_VERSION=3.7
+ARG PYARROW_VERSION=0.16.0
+ARG MLIO_VERSION=0.5.1
 
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
@@ -20,9 +26,10 @@ RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.s
 
 ENV PATH=/miniconda3/bin:${PATH}
 
-RUN conda update -y conda && \
-    conda install -c conda-forge pyarrow=0.16.0 && \
-    conda install -c mlio -c conda-forge mlio-py=0.5 && \
+RUN conda install python=${PYTHON_VERSION} && \
+    conda update -y conda && \
+    conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
+    conda install -c mlio -c conda-forge mlio-py=${MLIO_VERSION} && \
     conda install -c anaconda scipy
 
 # Python won’t try to write .pyc or .pyo files on the import of source modules
