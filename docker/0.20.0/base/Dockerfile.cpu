@@ -3,6 +3,7 @@ ARG UBUNTU_VERSION=16.04
 FROM ubuntu:${UBUNTU_VERSION}
 
 ARG CONDA_VERSION=4.7.12.1
+ARG CONDA_CHECKSUM="81c773ff87af5cfac79ab862942ab6b3"
 ARG PYTHON_VERSION=3.7
 ARG PYARROW_VERSION=0.14.1
 ARG MLIO_VERSION=0.1
@@ -14,6 +15,7 @@ RUN apt-get update && \
 
 RUN cd /tmp && \
     curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh && \
+    echo "${CONDA_CHECKSUM} /tmp/Miniconda3.sh" | md5sum -c - && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
     rm /tmp/Miniconda3.sh
 
