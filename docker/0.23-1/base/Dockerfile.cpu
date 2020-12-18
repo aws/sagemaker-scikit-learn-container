@@ -1,9 +1,11 @@
 ARG UBUNTU_VERSION=18.04
+ARG UBUNTU_IMAGE_DIGEST=646942475da61b4ce9cc5b3fadb42642ea90e5d0de46111458e100ff2c7031e6
 
-FROM ubuntu:${UBUNTU_VERSION}
+FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
-ARG CONDA_VERSION=4.8.3
+ARG MINICONDA_VERSION=4.8.3
 ARG CONDA_PY_VERSION=37
+ARG CONDA_PKG_VERSION=4.9.0
 ARG PYTHON_VERSION=3.7
 ARG PYARROW_VERSION=0.16.0
 ARG MLIO_VERSION=0.6.0
@@ -40,7 +42,8 @@ RUN apt-get update && \
         autoconf \
         automake \
         build-essential \
-        cmake \
+        cmake=3.18.4-0kitware1 \
+        cmake-data=3.18.4-0kitware1 \
         doxygen \
         libcurl4-openssl-dev \
         libssl-dev \
@@ -54,7 +57,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp && \
-    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${CONDA_VERSION}-Linux-x86_64.sh && \
+    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-x86_64.sh && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
     rm /tmp/Miniconda3.sh
 
@@ -63,7 +66,13 @@ ENV PATH=/miniconda3/bin:${PATH}
 # Install MLIO with Apache Arrow integration
 # We could install mlio-py from conda, but it comes  with extra support such as image reader that increases image size
 # which increases training time. We build from source to minimize the image size.
-RUN conda install python=${PYTHON_VERSION} && \
+RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
+    # Conda configuration see https://conda.io/projects/conda/en/latest/configuration.html
+    conda config --system --set auto_update_conda false && \
+    conda config --system --set show_channel_urls true && \
+    echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
+    conda install python=${PYTHON_VERSION} && \
+    conda install conda=${CONDA_PKG_VERSION} && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
     cd /tmp && \
