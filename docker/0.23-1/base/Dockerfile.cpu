@@ -45,6 +45,7 @@ RUN apt-get update && \
         cmake=3.18.4-0kitware1 \
         cmake-data=3.18.4-0kitware1 \
         doxygen \
+        kitware-archive-keyring \
         libcurl4-openssl-dev \
         libssl-dev \
         libtool \
@@ -54,6 +55,7 @@ RUN apt-get update && \
         python3-pip \
         zlib1g-dev \
         && \
+    rm /etc/apt/trusted.gpg.d/kitware.gpg && \
     rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp && \
