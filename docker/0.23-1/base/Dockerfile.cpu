@@ -6,7 +6,7 @@ FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 ARG MINICONDA_VERSION=4.8.3
 ARG CONDA_PY_VERSION=37
 ARG CONDA_PKG_VERSION=4.9.0
-ARG PYTHON_VERSION=3.7
+ARG PYTHON_VERSION=3.7.10
 ARG PYARROW_VERSION=0.16.0
 ARG MLIO_VERSION=0.6.0
 
@@ -73,7 +73,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
     echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
-    conda install python=${PYTHON_VERSION} && \
+    conda install -c conda-forge python=${PYTHON_VERSION} && \
     conda install conda=${CONDA_PKG_VERSION} && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
