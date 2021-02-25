@@ -4,7 +4,7 @@ FROM ubuntu:${UBUNTU_VERSION}
 
 ARG CONDA_VERSION=4.7.12.1
 ARG CONDA_CHECKSUM="81c773ff87af5cfac79ab862942ab6b3"
-ARG PYTHON_VERSION=3.7
+ARG PYTHON_VERSION=3.7.10
 ARG PYARROW_VERSION=0.14.1
 ARG MLIO_VERSION=0.1
 
@@ -21,7 +21,7 @@ RUN cd /tmp && \
 
 ENV PATH=/miniconda3/bin:${PATH}
 
-RUN conda install python=${PYTHON_VERSION} && \
+RUN conda install -c conda-forge python=${PYTHON_VERSION} && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
     conda install -c mlio -c conda-forge mlio-py=${MLIO_VERSION} && \
