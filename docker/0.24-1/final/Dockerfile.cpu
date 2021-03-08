@@ -1,5 +1,5 @@
 FROM sklearn-base:0.24-1-cpu-py3
-ENV SAGEMAKER_SKLEARN_VERSION 0.23-1
+ENV SAGEMAKER_SKLEARN_VERSION 0.24-1
 
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
