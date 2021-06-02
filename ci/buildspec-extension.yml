@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     SKLEARN_FRAMEWORK_VERSION: "0.23-1"
-    EXTENSION_FRAMEWORK_VERSION: "0.2-1"
+    EXTENSION_FRAMEWORK_VERSION: "2.2.1-1"
 
 phases:
   install:
