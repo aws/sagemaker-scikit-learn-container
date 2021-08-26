@@ -91,6 +91,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cmake --build . --target mlio-arrow && \
     cd ../../src/mlio-py && \
     python3 setup.py bdist_wheel && \
+    python3 -m pip install --upgrade pip && \
     python3 -m pip install dist/*.whl && \
     cp -r /tmp/mlio/build/third-party/lib/intel64/gcc4.7/* /usr/local/lib/ && \
     ldconfig && \
