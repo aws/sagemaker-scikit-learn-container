@@ -6,4 +6,4 @@ RUN pip freeze | grep -q 'scikit-learn==0.23.2'; \
 		else echo 'ERROR: Expected scikit-learn version is 0.23.2, check base images for scikit-learn version' && \
 			 exit 1; fi
 
-RUN pip install --upgrade --no-cache --no-deps sagemaker-scikit-learn-extension==2.3.0
+RUN pip install --upgrade --no-cache --no-deps sagemaker-scikit-learn-extension==2.4.0
