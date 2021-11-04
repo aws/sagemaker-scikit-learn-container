@@ -13,6 +13,7 @@ phases:
     commands:
     - echo Build started on `date`
     - echo Building the Docker image...
+    - docker login -u $dockerhub_username -p $dockerhub_password
     - docker build -t sklearn-base:0.20.0-cpu-py3  -f docker/0.20.0/base/Dockerfile.cpu .
     - pip install wheel setuptools
     - python setup.py bdist_wheel
