@@ -18,6 +18,7 @@ phases:
     commands:
     - echo Build started on `date`
     - echo Building the Docker image...
+    - docker login -u $dockerhub_username -p $dockerhub_password
     - docker build -t sklearn-base:$SKLEARN_FRAMEWORK_VERSION-cpu-py3  -f docker/$SKLEARN_FRAMEWORK_VERSION/base/Dockerfile.cpu .
     - pip install wheel setuptools
     - python setup.py bdist_wheel
