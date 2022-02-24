@@ -29,7 +29,7 @@ phases:
     - echo Pushing the Docker image...
     - |
       case $CODEBUILD_WEBHOOK_EVENT in
-        PULL_REQUEST_MERGED)
+        PUSH | PULL_REQUEST_MERGED)
           docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3 | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
           ;;
         PULL_REQUEST_CREATED | PULL_REQUEST_UPDATED | PULL_REQUEST_REOPENED)
