@@ -13,6 +13,15 @@ phases:
     commands:
     - echo Logging in to Amazon ECR...
     - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+    - echo Installing dependencies...
+    - curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    - bash Miniconda3-latest-Linux-x86_64.sh -bfp /miniconda3
+    - export PATH=/miniconda3/bin:${PATH}
+    - conda install python=3.7
+    - conda update -y conda
+    - conda install -y 'requests<2.21'  # sagemaker-python-sdk requires requests<2.21
+    - python3 -m pip install pip==20.1  # The new pip denpendency resolver in 20.2+ can't resolve 1.0-1 and 0.90 dependencies
+    - python3 -m pip install .[test]
   build:
     commands:
     - echo Build started on `date`
