@@ -174,7 +174,7 @@ If you want to run local integration tests, then use:
 
     # Required arguments for integration tests are found in test/conftest.py
 
-    pytest test/integration/local --docker-base-name <your_docker_image> \
+    pytest test/integration --docker-base-name <your_docker_image> \
                       --tag <your_docker_image_tag> \
                       --py-version <2_or_3> \
                       --framework-version <Scikit-learn_version>
@@ -183,8 +183,8 @@ If you want to run local integration tests, then use:
 .. parsed-literal::
 
   # Example
-  pytest test/integration/local --docker-base-name preprod-sklearn ``\``
-                                --tag 1.0 ``\``
+  pytest test/integration --docker-base-name preprod-sklearn ``\``
+                                --tag 1.0-1-cpu-py3 ``\``
                                 --py-version 3 ``\``
                                 --framework-version |FRAMEWORK_VERSION|
 
