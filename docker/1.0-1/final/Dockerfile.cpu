@@ -54,4 +54,3 @@ ENV TEMP=/home/model-server/tmp
 
 # Required label for multi-model loading
 LABEL com.amazonaws.sagemaker.capabilities.multi-models=true
-LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
