@@ -37,7 +37,7 @@ phases:
     - docker run --rm -t test-sklearn sh -c 'pytest --cov=sagemaker_sklearn_container --cov-fail-under=60 test/unit'
     - docker run --rm -t test-sklearn sh -c 'flake8 setup.py src test'
     - echo Running container tests...
-    - pytest test/integration/local --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-cpu-py3 --py-version 3 --framework-version $FRAMEWORK_VERSION
+    - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-cpu-py3 --py-version 3 --framework-version $FRAMEWORK_VERSION
     - docker tag preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3
   post_build:
     commands:
