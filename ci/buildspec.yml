@@ -25,7 +25,7 @@ phases:
     - echo Running tox...
     - printf "FROM preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile.test
     - docker build -t test-sklearn -f Dockerfile.test .
-    - docker run --rm -t test-sklearn sh -c 'pytest --cov=sagemaker_sklearn --cov-fail-under=60 test/unit'
+    - docker run --rm -t test-sklearn sh -c 'pytest --cov=sagemaker_sklearn_container --cov-fail-under=60 test/unit'
     - docker run --rm -t test-sklearn sh -c 'flake8 setup.py src test'
     - echo Running container tests...
     - pytest test/integration/local --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-cpu-py3 --py-version 3 --framework-version $FRAMEWORK_VERSION
