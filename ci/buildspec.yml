@@ -8,7 +8,7 @@ phases:
   install:
     runtime-versions:
       docker: 18
-      python: 3.7
+      python: 3.9
   pre_build:
     commands:
     - echo Logging in to Amazon ECR...
