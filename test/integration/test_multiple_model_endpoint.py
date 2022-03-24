@@ -61,8 +61,8 @@ def container(request, docker_base_name, tag):
     try:
         command = (
             'docker run --name {} -p 8080:8080'
-            #' --mount type=volume,source=dynamic_endpoint_model_volume,target=/opt/ml/model,readonly'
-            #' --mount type=volume,source=dynamic_endpoint_module_volume,target=/user_module,readonly'
+            # ' --mount type=volume,source=dynamic_endpoint_model_volume,target=/opt/ml/model,readonly'
+            # ' --mount type=volume,source=dynamic_endpoint_module_volume,target=/user_module,readonly'
             ' -v {}:/opt/ml/model'
             ' -v {}:/user_module'
             ' -e SAGEMAKER_BIND_TO_PORT=8080'
