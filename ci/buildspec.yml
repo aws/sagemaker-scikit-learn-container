@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    FRAMEWORK_VERSION: "1.0-11.0-1"
+    FRAMEWORK_VERSION: "1.0-1"
 
 phases:
   install:
