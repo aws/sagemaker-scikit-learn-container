@@ -1,17 +1,19 @@
-ARG UBUNTU_VERSION=16.04
+ARG UBUNTU_VERSION=18.04
+ARG UBUNTU_IMAGE_DIGEST=98706f0f213dbd440021993a82d2f70451a73698315370ae8615cc468ac06624
 
-FROM ubuntu:${UBUNTU_VERSION}
+FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
 ARG CONDA_VERSION=4.7.12.1
 ARG CONDA_CHECKSUM="81c773ff87af5cfac79ab862942ab6b3"
 ARG PYTHON_VERSION=3.7.10
 ARG PYARROW_VERSION=0.14.1
 ARG MLIO_VERSION=0.1
+ARG TBB_VERSION=2019.9
 
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
 RUN apt-get update && \
-    apt-get -y install build-essential libatlas-dev git wget curl nginx jq libatlas3-base
+    apt-get -y install build-essential libatlas-base-dev git wget curl nginx jq libatlas3-base
 
 RUN cd /tmp && \
     curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh && \
@@ -25,7 +27,8 @@ RUN conda install -c conda-forge python=${PYTHON_VERSION} && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
     conda install -c mlio -c conda-forge mlio-py=${MLIO_VERSION} && \
-    conda install -c anaconda scipy
+    conda install -c anaconda scipy && \
+    conda install -c conda-forge tbb-devel=${TBB_VERSION}
 
 # Python won’t try to write .pyc or .pyo files on the import of source modules
 # Force stdin, stdout and stderr to be totally unbuffered. Good for logging
