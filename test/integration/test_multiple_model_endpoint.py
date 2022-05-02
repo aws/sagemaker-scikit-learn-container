@@ -55,6 +55,9 @@ def modulevolume():
 
 @pytest.fixture(scope='module', autouse=True)
 def container(request, docker_base_name, tag):
+    module_dir = os.path.join(resource_path, 'module')
+    model_dir = os.path.join(resource_path, 'models')
+
     test_name = 'sagemaker-sklearn-serving-test'
     module_dir = os.path.join(resource_path, 'module')
     model_dir = os.path.join(resource_path, 'models')
