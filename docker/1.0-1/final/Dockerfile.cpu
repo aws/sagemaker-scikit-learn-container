@@ -1,0 +1,56 @@
+FROM sklearn-base:1.0-1-cpu-py3
+ENV SAGEMAKER_SKLEARN_VERSION 1.0-1
+
+LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
+
+COPY requirements.txt /requirements.txt
+RUN python -m pip install -r /requirements.txt && \
+    rm /requirements.txt
+
+COPY dist/sagemaker_sklearn_container-2.0-py3-none-any.whl /sagemaker_sklearn_container-2.0-py3-none-any.whl
+# https://github.com/googleapis/google-cloud-python/issues/6647
+RUN rm -rf /miniconda3/lib/python3.7/site-packages/numpy-1.19.4.dist-info && \
+    pip install --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
+    rm /sagemaker_sklearn_container-2.0-py3-none-any.whl
+
+ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main
+ENV SAGEMAKER_SERVING_MODULE sagemaker_sklearn_container.serving:main
+
+#######
+# MMS #
+#######
+# Create MMS user directory
+RUN useradd -m model-server
+RUN mkdir -p /home/model-server/tmp
+RUN chown -R model-server /home/model-server
+
+# Copy MMS configs
+COPY docker/$SAGEMAKER_SKLEARN_VERSION/resources/mms/config.properties.tmp /home/model-server
+ENV SKLEARN_MMS_CONFIG=/home/model-server/config.properties
+
+# Copy execution parameters endpoint plugin for MMS
+RUN mkdir -p /tmp/plugins
+COPY docker/$SAGEMAKER_SKLEARN_VERSION/resources/mms/endpoints-1.0.jar /tmp/plugins
+RUN chmod +x /tmp/plugins/endpoints-1.0.jar
+
+# Create directory for models
+RUN mkdir -p /opt/ml/models
+RUN chmod +rwx /opt/ml/models
+
+#####################
+# Required ENV vars #
+#####################
+# Set SageMaker training environment variables
+ENV SM_INPUT /opt/ml/input
+ENV SM_INPUT_TRAINING_CONFIG_FILE $SM_INPUT/config/hyperparameters.json
+ENV SM_INPUT_DATA_CONFIG_FILE $SM_INPUT/config/inputdataconfig.json
+ENV SM_CHECKPOINT_CONFIG_FILE $SM_INPUT/config/checkpointconfig.json
+
+# Set SageMaker serving environment variables
+ENV SM_MODEL_DIR /opt/ml/model
+
+EXPOSE 8080
+ENV TEMP=/home/model-server/tmp
+
+# Required label for multi-model loading
+LABEL com.amazonaws.sagemaker.capabilities.multi-models=true

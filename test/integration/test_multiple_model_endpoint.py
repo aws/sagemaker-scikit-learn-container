@@ -56,18 +56,22 @@ def modulevolume():
 @pytest.fixture(scope='module', autouse=True)
 def container(request, docker_base_name, tag):
     test_name = 'sagemaker-sklearn-serving-test'
+    module_dir = os.path.join(resource_path, 'module')
+    model_dir = os.path.join(resource_path, 'models')
     try:
         command = (
             'docker run --name {} -p 8080:8080'
-            ' --mount type=volume,source=dynamic_endpoint_model_volume,target=/opt/ml/model,readonly'
-            ' --mount type=volume,source=dynamic_endpoint_module_volume,target=/user_module,readonly'
+            # ' --mount type=volume,source=dynamic_endpoint_model_volume,target=/opt/ml/model,readonly'
+            # ' --mount type=volume,source=dynamic_endpoint_module_volume,target=/user_module,readonly'
+            ' -v {}:/opt/ml/model'
+            ' -v {}:/user_module'
             ' -e SAGEMAKER_BIND_TO_PORT=8080'
             ' -e SAGEMAKER_SAFE_PORT_RANGE=9000-9999'
             ' -e SAGEMAKER_MULTI_MODEL=true'
             ' -e SAGEMAKER_PROGRAM={}'
             ' -e SAGEMAKER_SUBMIT_DIRECTORY={}'
             ' {}:{} serve'
-        ).format(test_name, 'script.py', "/user_module/user_code.tar.gz", docker_base_name, tag)
+        ).format(test_name, model_dir, module_dir, 'script.py', "/user_module/user_code.tar.gz", docker_base_name, tag)
 
         proc = subprocess.Popen(command.split(), stdout=sys.stdout, stderr=subprocess.STDOUT)
 

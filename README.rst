@@ -174,7 +174,7 @@ If you want to run local integration tests, then use:
 
     # Required arguments for integration tests are found in test/conftest.py
 
-    pytest test/integration/local --docker-base-name <your_docker_image> \
+    pytest test/integration --docker-base-name <your_docker_image> \
                       --tag <your_docker_image_tag> \
                       --py-version <2_or_3> \
                       --framework-version <Scikit-learn_version>
@@ -183,8 +183,8 @@ If you want to run local integration tests, then use:
 .. parsed-literal::
 
   # Example
-  pytest test/integration/local --docker-base-name preprod-sklearn ``\``
-                                --tag 1.0 ``\``
+  pytest test/integration --docker-base-name preprod-sklearn ``\``
+                                --tag 1.0-1-cpu-py3 ``\``
                                 --py-version 3 ``\``
                                 --framework-version |FRAMEWORK_VERSION|
 
@@ -242,4 +242,4 @@ SageMaker Scikit-learn Container is licensed under the Apache 2.0 License. It is
 .com, Inc. or its affiliates. All Rights Reserved. The license is available at:
 http://aws.amazon.com/apache2.0/
 
-.. |FRAMEWORK_VERSION| replace:: 0.23-1
+.. |FRAMEWORK_VERSION| replace:: 1.0-1
