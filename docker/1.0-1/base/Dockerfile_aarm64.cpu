@@ -4,9 +4,9 @@ ARG UBUNTU_IMAGE_DIGEST=646942475da61b4ce9cc5b3fadb42642ea90e5d0de46111458e100ff
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
 ARG MINICONDA_VERSION=4.9.2 # Upgraded version
-ARG CONDA_PY_VERSION=39
+ARG CONDA_PY_VERSION=38
 ARG CONDA_PKG_VERSION=4.10.1 
-ARG PYTHON_VERSION=3.7.10
+ARG PYTHON_VERSION=3.8.13
 ARG PYARROW_VERSION=1.0
 ARG MLIO_VERSION=arch-agnostic
 
@@ -94,7 +94,8 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="$(pwd)/../third-party" ../.. && \
     cmake --build . && \
     cmake --build . --target install && \
-    cmake -DMLIO_INCLUDE_PYTHON_EXTENSION=ON -DMLIO_INCLUDE_ARROW_INTEGRATION=ON ../.. && \
+    cmake -DMLIO_INCLUDE_PYTHON_EXTENSION=ON -DPYTHON_EXECUTABLE="/miniconda3/bin/python3" \
+        -DMLIO_INCLUDE_ARROW_INTEGRATION=ON ../.. && \
     cmake --build . --target mlio-py && \
     cmake --build . --target mlio-arrow && \
     cd ../../src/mlio-py && \
