@@ -8,7 +8,7 @@ ARG CONDA_PY_VERSION=38
 ARG CONDA_PKG_VERSION=4.9.0
 ARG PYTHON_VERSION=3.8.13
 ARG PYARROW_VERSION=3.0.0
-ARG MLIO_VERSION=0.6.0
+ARG MLIO_VERSION=0.7.0
 
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
