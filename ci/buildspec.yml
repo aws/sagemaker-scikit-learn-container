@@ -19,7 +19,6 @@ phases:
     - export PATH=/miniconda3/bin:${PATH}
     - conda install python=3.8
     - conda update -y conda
-    - conda install -y 'requests<2.21'  # sagemaker-python-sdk requires requests<2.21
     - python3 -m pip install pip==20.1  # The new pip denpendency resolver in 20.2+ can't resolve 1.0-1 and 0.90 dependencies
     - python3 -m pip install .[test]
   build:
