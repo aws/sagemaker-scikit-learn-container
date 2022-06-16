@@ -6,7 +6,7 @@ itsdangerous==2.0.1
 gunicorn==20.0.4
 model-archiver==1.0.3
 multi-model-server==1.1.1
-numpy==1.19.5q
+numpy==1.19.5
 pandas==1.1.3
 protobuf==3.20.1
 psutil==5.7.2
