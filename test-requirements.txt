@@ -1,6 +1,6 @@
 Flask
 PyYAML
-boto3>=1.13.17
+boto3>=1.24.17
 coverage
 docker-compose
 flake8
