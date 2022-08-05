@@ -25,34 +25,37 @@ phases:
     - pip install wheel setuptools
     - python setup.py bdist_wheel
     - echo Building final container...
-    - docker build -t preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 -f docker/$FRAMEWORK_VERSION/final/Dockerfile.cpu .
+    - FINAL_IMAGE=preprod-sklearn:${FRAMEWORK_VERSION}-cpu-py3
+    - docker build -t ${FINAL_IMAGE} -f docker/$FRAMEWORK_VERSION/final/Dockerfile.cpu .
     - echo Building test container...
-    - printf "FROM preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile.test
+    - printf "FROM ${FINAL_IMAGE}\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile.test
     - docker build -t test-sklearn -f Dockerfile.test .
     - echo Running tox...
     - docker run --rm --entrypoint /bin/bash test-sklearn -c "tox -e ALL"
     - echo Running container tests...
     - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-cpu-py3 --py-version 3 --framework-version $FRAMEWORK_VERSION
+    - FINAL_URI=${SM_ALPHA}.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:${FRAMEWORK_VERSION}
   post_build:
     commands:
     - echo Build completed on `date`
     - |
       case $CODEBUILD_WEBHOOK_EVENT in
         PULL_REQUEST_MERGED)
+          docker tag ${FINAL_IMAGE} ${FINAL_URI}-cpu-py3
+          docker tag ${FINAL_IMAGE} ${FINAL_URI}
           echo Logging in to Amazon ECR...
           $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
           echo Pushing the Docker image...
-          docker push $SM_ALPHA.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3 | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
-          docker push $SM_ALPHA.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
+          docker push ${FINAL_URI}-cpu-py3 | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
+          docker push ${FINAL_URI} | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
           ;;
         PULL_REQUEST_CREATED | PULL_REQUEST_UPDATED | PULL_REQUEST_REOPENED)
+          docker tag ${FINAL_IMAGE} ${FINAL_URI}-cpu-py3-test
           echo Logging in to Amazon ECR...
           $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
           echo Pushing the Docker image...
-          # pushes test tag for manual verification, requires cleanup in ECR every once in a while though
-          TEST_TAG=$SM_ALPHA.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:${FRAMEWORK_VERSION}-cpu-py3-test
-          docker tag preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 ${TEST_TAG}
-          docker push ${TEST_TAG} | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
+          # Push test tag for manual verification. Requires cleanup in ECR occasionally
+          docker push ${FINAL_URI}-cpu-py3-test | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
           ;;
         *)
           echo Undefined behavior for webhook event type $CODEBUILD_WEBHOOK_EVENT
