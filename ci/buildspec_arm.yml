@@ -1,0 +1,64 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      docker: 19
+      python: 3.7
+  pre_build:
+    commands:
+    - echo Logging in to Amazon ECR...
+    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+    - echo Installing dependencies...
+    - curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-aarch64.sh
+    - bash Miniconda3-latest-Linux-aarch64.sh -bfp /miniconda3
+    - export PATH=/miniconda3/bin:${PATH}
+    - conda install python=3.7
+    - conda update -y conda
+    - python3 -m pip install pip==20.1  # Pip dependency resolver in 20.2+ can't resolve some dependencies
+    - python3 -m pip install .[test]
+  build:
+    commands:
+    - echo Build started on `date`
+    - echo Building base container...
+    - docker login -u $dockerhub_username -p $dockerhub_password
+    - docker build -t sklearn-base:$FRAMEWORK_VERSION-arm-cpu-py3  -f docker/$FRAMEWORK_VERSION/base/Dockerfile_arm.cpu .
+    - pip install wheel setuptools
+    - python setup.py bdist_wheel
+    - echo Building final container...
+    - FINAL_IMAGE=preprod-sklearn:${FRAMEWORK_VERSION}-arm-cpu-py3
+    - docker build -t ${FINAL_IMAGE} -f docker/$FRAMEWORK_VERSION/final/Dockerfile_arm.cpu .
+    - echo Building test container...
+    - printf "FROM ${FINAL_IMAGE}\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile_arm.test
+    - docker build -t test-sklearn -f Dockerfile_arm.test .
+    - echo Running tox...
+    - docker run --rm -t test-sklearn sh -c 'pytest --cov=sagemaker_sklearn_container --cov-fail-under=60 test/unit'
+    - docker run --rm -t test-sklearn sh -c 'flake8 setup.py src test'
+    - echo Running container tests...
+    - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-arm-cpu-py3 --py-version 3 --framework-version $FRAMEWORK_VERSION
+    - FINAL_URI=${SM_ALPHA}.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:${FRAMEWORK_VERSION}-arm
+  post_build:
+    commands:
+    - echo Build completed on `date`
+    - |
+      case $CODEBUILD_WEBHOOK_EVENT in
+        PULL_REQUEST_MERGED)
+          docker tag ${FINAL_IMAGE} ${FINAL_URI}-cpu-py3
+          docker tag ${FINAL_IMAGE} ${FINAL_URI}
+          echo Logging in to Amazon ECR...
+          $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+          echo Pushing the Docker image...
+          docker push ${FINAL_URI}-cpu-py3 | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
+          docker push ${FINAL_URI} | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
+          ;;
+        PULL_REQUEST_CREATED | PULL_REQUEST_UPDATED | PULL_REQUEST_REOPENED)
+          docker tag ${FINAL_IMAGE} ${FINAL_URI}-cpu-py3-test
+          echo Logging in to Amazon ECR...
+          $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+          echo Pushing the Docker image...
+          # Push test tag for manual verification. Requires cleanup in ECR occasionally
+          docker push ${FINAL_URI}-cpu-py3-test | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
+          ;;
+        *)
+          echo Undefined behavior for webhook event type $CODEBUILD_WEBHOOK_EVENT
+          ;;
+      esac
