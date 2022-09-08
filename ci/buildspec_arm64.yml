@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+      python: 3.7
+  pre_build:
+    commands:
+    - echo Logging in to Amazon ECR...
+    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+  build:
+    commands:
+    - echo Build started on `date`
+    - echo Building the Docker image...
+    - docker login -u $dockerhub_username -p $dockerhub_password
+    - docker build -t sklearn-base:0.20.0-arm64-cpu-py3  -f docker/0.20.0/base/Dockerfile_arm64.cpu .
+    - pip install wheel setuptools
+    - python setup.py bdist_wheel
+    - docker build -t preprod-sklearn:0.20.0-cpu-py3 -f docker/0.20.0/final/Dockerfile.cpu .
+    - docker tag preprod-sklearn:0.20.0-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.20.0-arm64-cpu-py3
+  post_build:
+    commands:
+    - echo Build completed on `date`
+    - echo Pushing the Docker image...
+    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.20.0-arm64-cpu-py3
