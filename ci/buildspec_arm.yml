@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      docker: 18
+      docker: 19
       python: 3.7
   pre_build:
     commands:
@@ -14,11 +14,11 @@ phases:
     - echo Build started on `date`
     - echo Building the Docker image...
     - docker login -u $dockerhub_username -p $dockerhub_password
-    - docker build -t sklearn-base:0.20.0-arm64-cpu-py3  -f docker/0.20.0/base/Dockerfile_arm64.cpu .
+    - docker build -t sklearn-base:0.20.0-arm64-cpu-py3  -f docker/0.20.0/base/Dockerfile_arm.cpu .
     - pip install wheel setuptools
     - python setup.py bdist_wheel
-    - docker build -t preprod-sklearn:0.20.0-cpu-py3 -f docker/0.20.0/final/Dockerfile.cpu .
-    - docker tag preprod-sklearn:0.20.0-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.20.0-arm64-cpu-py3
+    - docker build -t preprod-sklearn:0.20.0-arm64-cpu-py3 -f docker/0.20.0/final/Dockerfile_arm.cpu .
+    - docker tag preprod-sklearn:0.20.0-arm64-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.20.0-arm64-cpu-py3
   post_build:
     commands:
     - echo Build completed on `date`
