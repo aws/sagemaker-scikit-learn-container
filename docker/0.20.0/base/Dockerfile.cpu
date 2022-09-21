@@ -23,7 +23,7 @@ RUN cd /tmp && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
     rm /tmp/Miniconda3.sh && \
     # Remove this when we move to Miniconda version with conda package version 4.13.0+
-    rm -rf miniconda3/pkgs/conda-4.12.0-py37h06a4308_0/info/test/*
+    rm -rf /miniconda3/pkgs/conda-4.12.0-py37h06a4308_0/info/test/*
 
 ENV PATH=/miniconda3/bin:${PATH}
 
