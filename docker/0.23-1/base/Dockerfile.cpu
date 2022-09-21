@@ -3,9 +3,10 @@ ARG UBUNTU_IMAGE_DIGEST=98706f0f213dbd440021993a82d2f70451a73698315370ae8615cc46
 
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
-ARG MINICONDA_VERSION=4.8.3
+ARG MINICONDA_VERSION=4.12.0
+ARG CONDA_CHECKSUM=3190da6626f86eee8abf1b2fd7a5af492994eb2667357ee4243975cdbb175d7a
 ARG CONDA_PY_VERSION=37
-ARG CONDA_PKG_VERSION=4.9.0
+ARG CONDA_PKG_VERSION=4.13.0
 ARG PYTHON_VERSION=3.7.10
 ARG PYARROW_VERSION=1.0.0
 ARG MLIO_VERSION=0.6.0
@@ -61,8 +62,11 @@ RUN apt-get update && \
 
 RUN cd /tmp && \
     curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    echo "${CONDA_CHECKSUM} /tmp/Miniconda3.sh" | sha256sum -c - && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
-    rm /tmp/Miniconda3.sh
+    rm /tmp/Miniconda3.sh && \
+    # Remove this when we move to Miniconda version with conda package version 4.13.0+
+    rm -rf /miniconda3/pkgs/conda-4.12.0-py38h06a4308_0/info/test/*
 
 ENV PATH=/miniconda3/bin:${PATH}
 
