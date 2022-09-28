@@ -44,13 +44,15 @@ phases:
     - echo Pushing the Docker image...
     - |
       case $CODEBUILD_WEBHOOK_EVENT in
-        PUSH)
+        PUSH | PULL_REQUEST_MERGED)
+          echo Pushing final image..
           docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3 | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
           ;;
-        PULL_REQUEST_MERGED | PULL_REQUEST_CREATED | PULL_REQUEST_UPDATED | PULL_REQUEST_REOPENED)
+        PULL_REQUEST_CREATED | PULL_REQUEST_UPDATED | PULL_REQUEST_REOPENED)
           # pushes test tag for manual verification, requires cleanup in ECR every once in a while though
           TEST_TAG=515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3-test
           docker tag preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 ${TEST_TAG}
+          echo Pushing test image..
           docker push ${TEST_TAG} | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
           ;;
         *)
