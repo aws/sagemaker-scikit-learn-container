@@ -8,7 +8,7 @@ model-archiver==1.0.3
 multi-model-server==1.1.1
 numpy==1.19.2
 pandas==1.1.3
-protobuf==3.20.1
+protobuf==3.20.2
 psutil==5.7.2
 python-dateutil==2.8.1
 sagemaker-inference==1.2.0
