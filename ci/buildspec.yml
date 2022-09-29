@@ -23,4 +23,20 @@ phases:
     commands:
     - echo Build completed on `date`
     - echo Pushing the Docker image...
-    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.20.0-cpu-py3
+    - |
+      case $CODEBUILD_WEBHOOK_EVENT in
+      PUSH | PULL_REQUEST_MERGED)
+          echo Pushing final image..
+          docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.20.0-cpu-py3
+          ;;
+        PULL_REQUEST_CREATED | PULL_REQUEST_UPDATED | PULL_REQUEST_REOPENED)
+          # pushes test tag for manual verification, requires cleanup in ECR every once in a while though
+          TEST_TAG=515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:0.20.0-cpu-py3-test
+          docker tag preprod-sklearn:0.20.0-cpu-py3 ${TEST_TAG}
+          echo Pushing test image..
+          docker push ${TEST_TAG}
+          ;;
+        *)
+          echo Undefined behavior for webhook event type $CODEBUILD_WEBHOOK_EVENT
+          ;;
+      esac
