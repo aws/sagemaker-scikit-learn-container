@@ -8,14 +8,14 @@ ARG CONDA_CHECKSUM=4dc4214839c60b2f5eb3efbdee1ef5d9b45e74f2c09fcae6c8934a13f36ff
 ARG CONDA_PY_VERSION=37
 ARG CONDA_PKG_VERSION=4.13.0
 ARG PYTHON_VERSION=3.7.10
-ARG PYARROW_VERSION=0.14.1
-ARG MLIO_VERSION=0.1
+ARG PYARROW_VERSION=1.0.0
+ARG MLIO_VERSION=0.7.0
 ARG TBB_VERSION=2019.9
 
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
-RUN apt-get update && \
-    apt-get -y install build-essential libatlas-base-dev git wget curl nginx jq libatlas3-base
+RUN apt-get -y update && \
+    apt-get -y install --no-install-recommends build-essential libatlas-base-dev git wget curl nginx jq libatlas3-base
 
 RUN cd /tmp && \
     curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-x86_64.sh && \
@@ -29,6 +29,8 @@ ENV PATH=/miniconda3/bin:${PATH}
 
 RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
+    conda config --system --set auto_update_conda false && \
+    conda config --system --set show_channel_urls true && \
     conda install -c conda-forge python=${PYTHON_VERSION} && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
