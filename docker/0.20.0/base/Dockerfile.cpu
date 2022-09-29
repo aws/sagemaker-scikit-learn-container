@@ -3,10 +3,8 @@ ARG UBUNTU_IMAGE_DIGEST=98706f0f213dbd440021993a82d2f70451a73698315370ae8615cc46
 
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
-ARG MINICONDA_VERSION=4.12.0
-ARG CONDA_CHECKSUM=4dc4214839c60b2f5eb3efbdee1ef5d9b45e74f2c09fcae6c8934a13f36ffc3e
-ARG CONDA_PY_VERSION=37
-ARG CONDA_PKG_VERSION=22.9.0
+ARG CONDA_VERSION=4.7.12.1
+ARG CONDA_CHECKSUM="81c773ff87af5cfac79ab862942ab6b3"
 ARG PYTHON_VERSION=3.7.10
 ARG PYARROW_VERSION=0.14.1
 ARG MLIO_VERSION=0.1
@@ -18,21 +16,14 @@ RUN apt-get update && \
     apt-get -y install build-essential libatlas-base-dev git wget curl nginx jq libatlas3-base
 
 RUN cd /tmp && \
-    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-x86_64.sh && \
-    echo "${CONDA_CHECKSUM} /tmp/Miniconda3.sh" | sha256sum -c - && \
+    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh && \
+    echo "${CONDA_CHECKSUM} /tmp/Miniconda3.sh" | md5sum -c - && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
-    rm /tmp/Miniconda3.sh && \
-    # Remove this when we move to Miniconda version with conda package version 4.13.0+
-    rm -rf /miniconda3/pkgs/conda-4.12.0-py37h06a4308_0/info/test/*
+    rm /tmp/Miniconda3.sh
 
 ENV PATH=/miniconda3/bin:${PATH}
 
-RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
-    # Conda configuration see https://conda.io/projects/conda/en/latest/configuration.html
-    conda config --system --set auto_update_conda false && \
-    conda config --system --set show_channel_urls true && \
-    echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
-    conda install -c conda-forge python=${PYTHON_VERSION} && \
+RUN conda install -c conda-forge python=${PYTHON_VERSION} && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
     conda install -c mlio -c conda-forge mlio-py=${MLIO_VERSION} && \
