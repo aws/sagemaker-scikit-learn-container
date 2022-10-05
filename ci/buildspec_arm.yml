@@ -1,0 +1,44 @@
+version: 0.2
+
+env:
+  variables:
+    FRAMEWORK_VERSION: "1.0-1"
+
+phases:
+  install:
+    runtime-versions:
+      docker: 19
+      python: 3.8
+  pre_build:
+    commands:
+    - echo Logging in to Amazon ECR...
+    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+    - echo Installing dependencies...
+    - curl -LO https://repo.anaconda.com/miniconda/Miniconda3-py38_4.12.0-Linux-aarch64.sh
+    - bash Miniconda3-py38_4.12.0-Linux-aarch64.sh -bfp /miniconda3
+    - export PATH=/miniconda3/bin:${PATH}
+    - conda install python=3.8
+    - conda update -y conda
+    - python3 -m pip install pip==20.1  # The new pip denpendency resolver in 20.2+ can't resolve 1.0-1 and 0.90 dependencies
+    - python3 -m pip install .[test]
+  build:
+    commands:
+    - echo Build started on `date`
+    - echo Building the Docker image...
+    - docker login -u $dockerhub_username -p $dockerhub_password
+    - docker build -t sklearn-base:$FRAMEWORK_VERSION-cpu-py3-arm64  -f docker/$FRAMEWORK_VERSION/base/Dockerfile_arm.cpu .
+    - pip install wheel setuptools
+    - python setup.py bdist_wheel
+    - docker build -t preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3-arm64 -f docker/$FRAMEWORK_VERSION/final/Dockerfile_arm.cpu .
+    - echo Running tox...
+    - printf "FROM preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3-arm64\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile_arm.test
+    - docker build -t test-sklearn -f Dockerfile_arm.test .
+    - docker run --rm -t test-sklearn sh -c 'tox -e ALL'
+    - echo Running container tests...
+    - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-cpu-py3-arm64 --py-version 3 --framework-version $FRAMEWORK_VERSION
+    - docker tag preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3-arm64 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3-arm64
+  post_build:
+    commands:
+    - echo Build completed on `date`
+    - echo Pushing the Docker image...
+    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3-arm64
