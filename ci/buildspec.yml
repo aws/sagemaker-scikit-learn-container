@@ -26,18 +26,18 @@ phases:
     - echo Build started on `date`
     - echo Building the Docker image...
     - docker login -u $dockerhub_username -p $dockerhub_password
-    - docker build -t sklearn-base:$FRAMEWORK_VERSION-cpu-py3  -f docker/$FRAMEWORK_VERSION/base/Dockerfile.cpu .
+    - docker build -t sklearn-base:$FRAMEWORK_VERSION  -f docker/$FRAMEWORK_VERSION/base/Dockerfile.cpu .
     - pip install wheel setuptools
     - python setup.py bdist_wheel
-    - docker build -t preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 -f docker/$FRAMEWORK_VERSION/final/Dockerfile.cpu .
+    - docker build -t preprod-sklearn:$FRAMEWORK_VERSION -f docker/$FRAMEWORK_VERSION/final/Dockerfile.cpu .
     - echo Running tox...
-    - printf "FROM preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile.test
+    - printf "FROM preprod-sklearn:$FRAMEWORK_VERSION\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile.test
     - docker build -t test-sklearn -f Dockerfile.test .
     - docker run --rm -t test-sklearn sh -c 'pytest --cov=sagemaker_sklearn_container --cov-fail-under=60 test/unit'
     - docker run --rm -t test-sklearn sh -c 'flake8 setup.py src test'
     - echo Running container tests...
-    - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-cpu-py3 --py-version 3 --framework-version $FRAMEWORK_VERSION
-    - docker tag preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3
+    - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION --py-version 3 --framework-version $FRAMEWORK_VERSION
+    - docker tag preprod-sklearn:$FRAMEWORK_VERSION 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION
   post_build:
     commands:
     - echo Build completed on `date`
@@ -46,12 +46,12 @@ phases:
       case $CODEBUILD_WEBHOOK_EVENT in
         PUSH | PULL_REQUEST_MERGED)
           echo Pushing final image..
-          docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3 | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
+          docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
           ;;
         PULL_REQUEST_CREATED | PULL_REQUEST_UPDATED | PULL_REQUEST_REOPENED)
           # pushes test tag for manual verification, requires cleanup in ECR every once in a while though
-          TEST_TAG=515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3-test
-          docker tag preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3 ${TEST_TAG}
+          TEST_TAG=515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-test
+          docker tag preprod-sklearn:$FRAMEWORK_VERSION ${TEST_TAG}
           echo Pushing test image..
           docker push ${TEST_TAG} | grep -v -E "[0-9]{12}.dkr.ecr.\S+.amazonaws.com"
           ;;
