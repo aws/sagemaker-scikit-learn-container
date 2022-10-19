@@ -26,20 +26,20 @@ phases:
     - echo Build started on `date`
     - echo Building the Docker image...
     - docker login -u $dockerhub_username -p $dockerhub_password
-    - docker build -t sklearn-base:$FRAMEWORK_VERSION-cpu-py3-arm64  -f docker/$FRAMEWORK_VERSION/base/Dockerfile_arm.cpu .
+    - docker build -t sklearn-base:$FRAMEWORK_VERSION-arm64  -f docker/$FRAMEWORK_VERSION/base/Dockerfile_arm.cpu .
     - pip install wheel setuptools
     - python setup.py bdist_wheel
-    - docker build -t preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3-arm64 -f docker/$FRAMEWORK_VERSION/final/Dockerfile_arm.cpu .
+    - docker build -t preprod-sklearn:$FRAMEWORK_VERSION-arm64 -f docker/$FRAMEWORK_VERSION/final/Dockerfile_arm.cpu .
     - echo Running tests...
-    - printf "FROM preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3-arm64\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile_arm.test
+    - printf "FROM preprod-sklearn:$FRAMEWORK_VERSION-arm64\nADD . /app\nWORKDIR /app\nRUN python3 -m pip install .[test]" > Dockerfile_arm.test
     - docker build -t test-sklearn -f Dockerfile_arm.test .
     - docker run --rm -t test-sklearn sh -c 'pytest --cov=sagemaker_sklearn_container --cov-fail-under=60 test/unit'
     - docker run --rm -t test-sklearn sh -c 'flake8 setup.py src test'
     - echo Running container tests...
-    - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-cpu-py3-arm64 --py-version 3 --framework-version $FRAMEWORK_VERSION
-    - docker tag preprod-sklearn:$FRAMEWORK_VERSION-cpu-py3-arm64 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3-arm64
+    - pytest test/integration --docker-base-name preprod-sklearn --tag $FRAMEWORK_VERSION-arm64 --py-version 3 --framework-version $FRAMEWORK_VERSION
+    - docker tag preprod-sklearn:$FRAMEWORK_VERSION-arm64 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-arm64
   post_build:
     commands:
     - echo Build completed on `date`
     - echo Pushing the Docker image...
-    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-cpu-py3-arm64
+    - docker push 515193369038.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:$FRAMEWORK_VERSION-arm64
