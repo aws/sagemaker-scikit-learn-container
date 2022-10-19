@@ -1,4 +1,4 @@
-FROM preprod-sklearn:1.0-1-cpu-py3
+FROM preprod-sklearn:1.0-1
 
 RUN pip freeze | grep -q 'scikit-learn==1.0.2'; \
 	if [ $? -eq 0 ]; \
