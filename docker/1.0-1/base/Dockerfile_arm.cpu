@@ -7,8 +7,9 @@ ARG MINICONDA_VERSION=4.9.2 # Upgraded version
 ARG CONDA_PY_VERSION=38
 ARG CONDA_PKG_VERSION=4.10.1 
 ARG PYTHON_VERSION=3.8.13
-ARG PYARROW_VERSION=1.0.0
-ARG MLIO_VERSION=arch-agnostic
+ARG PYARROW_VERSION=10.0.1
+ARG MLIO_VERSION=v0.8.0
+ARG NUMPY_VERSION=1.24.1
 
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
@@ -66,6 +67,10 @@ RUN apt-get update && \
     rm /etc/apt/trusted.gpg.d/kitware.gpg && \
     rm -rf /var/lib/apt/lists/*
 
+# http://ftp.us.debian.org/debian/pool/main/libf/libffi/libffi7_3.3-6_arm64.deb
+COPY docker/1.0-1/resources/libffi7_3.3-6_arm64.deb /tmp
+RUN dpkg -i /tmp/libffi7_3.3-6_arm64.deb
+
 RUN cd /tmp && \
     curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-aarch64.sh && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
@@ -84,6 +89,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install -c conda-forge python=${PYTHON_VERSION} && \
     conda install conda=${CONDA_PKG_VERSION} && \
     conda update -y conda && \
+    conda install -c conda-forge numpy=${NUMPY_VERSION} && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
     cd /tmp  && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
