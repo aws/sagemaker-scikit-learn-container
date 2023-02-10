@@ -22,3 +22,4 @@ MarkupSafe==2.1.1
 Werkzeug==0.15.6
 setuptools==65.5.1
 wheel==0.38.1
+numpy==1.24.1
