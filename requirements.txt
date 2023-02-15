@@ -19,7 +19,7 @@ scipy==1.5.3
 six==1.15.0
 jinja2==3.0.3
 MarkupSafe==2.1.1
-Werkzeug==0.15.6
+Werkzeug==2.2.3
 setuptools==65.5.1
 wheel==0.38.1
 numpy==1.24.1
