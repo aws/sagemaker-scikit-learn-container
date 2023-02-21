@@ -15,10 +15,10 @@ import boto3
 import os
 import logging
 import platform
+import tempfile
 import pytest
 import shutil
 import sys
-import tempfile
 
 from sagemaker import Session
 from .utils import local_mode
