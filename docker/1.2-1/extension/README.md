@@ -8,15 +8,15 @@ The SageMaker Scikit-learn Extension Container is built in 3 steps. The first 2 
 
 The "base" Dockerfile encompass the installation of the framework and all of the dependencies needed.
 
-Tagging scheme is based on <Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version>. (e.g. 1.0-1-cpu-py3)
+Tagging scheme is based on <Scikit-learn_version>-<SageMaker_version>-cpu-py<python_version>. (e.g. 1.2-1-cpu-py3)
 
 All "final" Dockerfiles build images using base images that use the tagging scheme above.
 
 ```
-docker build -t sklearn-base:1.0-1-cpu-py3 -f docker/1.0-1/base/Dockerfile.cpu .
+docker build -t sklearn-base:1.2-1-cpu-py3 -f docker/1.2-1/base/Dockerfile.cpu .
 ```
 
-Notice that this Dockerfile has the updated version of sklearn (1.0.2) installed.
+Notice that this Dockerfile has the updated version of sklearn (1.2.1) installed.
 
 ### Step 2: Final Image
 
@@ -38,7 +38,7 @@ python setup.py bdist_wheel
 Then build the final image, like in the sagemaker-sklearn-container
 
 ```
-docker build -t preprod-sklearn:1.0-1-cpu-py3 -f docker/1.0-1/final/Dockerfile.cpu .
+docker build -t preprod-sklearn:1.2-1-cpu-py3 -f docker/1.2-1/final/Dockerfile.cpu .
 ```
 
 ### Step 3: Build the extension image for SageMaker Scikit-learn Extension Container
@@ -47,10 +47,10 @@ The "extension" Dockerfiles encompass the installation of the SageMaker Autopilo
 
 The "extension" Dockerfiles use final images for building.
 
-Build the third additional Dockerfile needed for SageMaker Scikit-learn Extension Container. This Dockerfile specifies a hard dependency on a certain version of scikit-learn (i.e. v1.0.2).
+Build the third additional Dockerfile needed for SageMaker Scikit-learn Extension Container. This Dockerfile specifies a hard dependency on a certain version of scikit-learn (i.e. v1.2.1).
 
 Tagging scheme is based on extension-<Scikit-learn-Extension_version>-<SageMaker_version>-cpu-py<python_version>. (e.g. extension-2.5-1-cpu-py3). Make sure the "extension" image is tagged in accordance with the  `extension` (i.e. `extension-2.5-1-cpu-py3`).
 
 ```
-docker build -t preprod-sklearn-extension:2.5-1-cpu-py3 -f  docker/1.0-1/extension/Dockerfile.cpu .
+docker build -t preprod-sklearn-extension:2.5-1-cpu-py3 -f  docker/1.2-1/extension/Dockerfile.cpu .
 ```

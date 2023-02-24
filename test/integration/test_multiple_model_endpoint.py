@@ -150,7 +150,7 @@ def test_load_and_unload_model():
     res_json = json.loads(res)
     assert res_json['status'] == 'Workers scaled'
 
-    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0, 0.0', model_name)
+    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0', model_name)
     assert code == 200, res
 
     code, res = make_unload_model_request(model_name)
@@ -158,7 +158,7 @@ def test_load_and_unload_model():
     res_json = json.loads(res)
     assert res_json['status'] == "Model \"{}\" unregistered".format(model_name), res
 
-    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0, 0.0', model_name)
+    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0', model_name)
     assert code == 404, res
     assert res['message'] == "Model not found: {}".format(model_name), res
 
@@ -184,10 +184,10 @@ def test_load_and_unload_two_models():
     res_json = json.loads(res)
     assert res_json['status'] == 'Workers scaled'
 
-    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0, 0.0', model_name_0)
+    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0', model_name_0)
     assert code == 200, res
 
-    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0, 0.0', model_name_1)
+    code, res = make_invocation_request('0.0, 0.0, 0.0, 0.0, 0.0', model_name_1)
     assert code == 200, res
 
     code, res = make_unload_model_request(model_name_0)
