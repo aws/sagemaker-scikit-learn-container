@@ -69,6 +69,7 @@ RUN cd /tmp && \
     rm -rf /miniconda3/pkgs/conda-4.12.0-py38h06a4308_0/info/test/*
 
 ENV PATH=/miniconda3/bin:${PATH}
+ENV PIP_ROOT_USER_ACTION=ignore
 
 # Install MLIO with Apache Arrow integration
 # We could install mlio-py from conda, but it comes  with extra support such as image reader that increases image size
@@ -82,6 +83,9 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install conda=${CONDA_PKG_VERSION} && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
+    conda install pip --force-reinstall && \
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install wheel && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
@@ -97,7 +101,6 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cmake --build . --target mlio-arrow && \
     cd ../../src/mlio-py && \
     python3 setup.py bdist_wheel && \
-    python3 -m pip install --upgrade pip && \
     python3 -m pip install dist/*.whl && \
     cp -r /tmp/mlio/build/third-party/lib/libtbb* /usr/local/lib/ && \
     ldconfig && \
@@ -116,4 +119,4 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8 LANG=C.U
 # Install Scikit-Learn
 # Scikit-learn 0.20 was the last version to support Python 2.7 and Python 3.4.
 # Scikit-learn now requires Python 3.6 or newer.
-RUN python -m pip install --no-cache -I scikit-learn==1.2.1
+RUN python3 -m pip install --no-cache -I scikit-learn==1.2.1

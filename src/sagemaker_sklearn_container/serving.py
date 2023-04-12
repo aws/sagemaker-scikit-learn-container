@@ -15,6 +15,8 @@ import os
 import importlib
 import logging
 import numpy as np
+
+import sagemaker_sklearn_container.exceptions as exc
 from sagemaker_containers.beta.framework import (
     content_types, encoders, env, modules, transformer, worker, server)
 from sagemaker_sklearn_container.serving_mms import start_model_server
@@ -86,13 +88,24 @@ def default_output_fn(prediction, accept):
 
 
 def _user_module_transformer(user_module):
-    model_fn = getattr(user_module, 'model_fn', default_model_fn)
-    input_fn = getattr(user_module, 'input_fn', default_input_fn)
-    predict_fn = getattr(user_module, 'predict_fn', default_predict_fn)
-    output_fn = getattr(user_module, 'output_fn', default_output_fn)
+    model_fn = getattr(user_module, "model_fn", default_model_fn)
+    input_fn = getattr(user_module, "input_fn", None)
+    predict_fn = getattr(user_module, "predict_fn", None)
+    output_fn = getattr(user_module, "output_fn", None)
+    transform_fn = getattr(user_module, "transform_fn", None)
 
-    return transformer.Transformer(model_fn=model_fn, input_fn=input_fn, predict_fn=predict_fn,
-                                   output_fn=output_fn)
+    if transform_fn and (input_fn or predict_fn or output_fn):
+        raise exc.UserError("Cannot use transform_fn implementation with input_fn, predict_fn, and/or output_fn")
+
+    if transform_fn is not None:
+        return transformer.Transformer(model_fn=model_fn, transform_fn=transform_fn)
+    else:
+        return transformer.Transformer(
+            model_fn=model_fn,
+            input_fn=input_fn or default_input_fn,
+            predict_fn=predict_fn or default_predict_fn,
+            output_fn=output_fn or default_output_fn,
+        )
 
 
 def _user_module_execution_parameters_fn(user_module):

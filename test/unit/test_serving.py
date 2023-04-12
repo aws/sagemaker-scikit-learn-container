@@ -21,6 +21,7 @@ from sklearn.base import BaseEstimator
 
 from sagemaker_containers.beta.framework import (content_types, encoders, errors)
 from sagemaker_sklearn_container import serving
+from sagemaker_sklearn_container.exceptions import UserError
 from sagemaker_sklearn_container.serving import default_model_fn, import_module
 
 
@@ -132,6 +133,22 @@ def test_output_fn_npz(np_array):
 def test_input_fn_bad_accept():
     with pytest.raises(errors.UnsupportedFormatError):
         serving.default_output_fn('', 'application/not_supported')
+
+
+@patch("sagemaker_sklearn_container.serving.transformer")
+def test_user_module_transformer_with_transform_and_other_fn(mock_transformer):
+    mock_module = MagicMock(spec=["model_fn", "transform_fn", "input_fn"])
+    with pytest.raises(UserError):
+        serving._user_module_transformer(mock_module)
+
+
+@patch("sagemaker_sklearn_container.serving.transformer")
+def test_user_module_transformer_with_transform_and_no_other_fn(mock_transformer):
+    mock_module = MagicMock(spec=["model_fn", "transform_fn"])
+    serving._user_module_transformer(mock_module)
+    mock_transformer.Transformer.assert_called_once_with(
+        model_fn=mock_module.model_fn, transform_fn=mock_module.transform_fn
+    )
 
 
 @patch('importlib.import_module')
