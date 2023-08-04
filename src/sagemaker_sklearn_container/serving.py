@@ -18,7 +18,7 @@ import numpy as np
 
 import sagemaker_sklearn_container.exceptions as exc
 from sagemaker_containers.beta.framework import (
-    content_types, encoders, env, modules, transformer, worker, server)
+    content_types, encoders, env, transformer, worker, server)
 from sagemaker_sklearn_container.serving_mms import start_model_server
 
 logging.basicConfig(format='%(asctime)s %(levelname)s - %(name)s - %(message)s', level=logging.INFO)
@@ -117,7 +117,7 @@ def import_module(module_name, module_dir):
     try:  # if module_name already exists, use the existing one
         user_module = importlib.import_module(module_name)
     except ImportError:  # if the module has not been loaded, 'modules' downloads and installs it.
-        user_module = modules.import_module(module_dir, module_name)
+        user_module = importlib.import_module(module_dir, module_name)
     except Exception:  # this shouldn't happen
         logger.info("Encountered an unexpected error.")
         raise
