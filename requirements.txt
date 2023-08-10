@@ -10,3 +10,4 @@ itsdangerous==2.0.1
 jinja2==2.10.2
 MarkupSafe==1.1.1
 Werkzeug==0.15.6
+certifi==2023.7.22
