@@ -116,8 +116,6 @@ def import_module(module_name, module_dir):
 
     try:  # if module_name already exists, use the existing one
         user_module = importlib.import_module(module_name)
-    except ImportError:  # if the module has not been loaded, 'modules' downloads and installs it.
-        user_module = importlib.import_module(module_dir, module_name)
     except Exception:  # this shouldn't happen
         logger.info("Encountered an unexpected error.")
         raise
