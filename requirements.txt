@@ -15,7 +15,7 @@ sagemaker-containers==2.8.6.post2
 sagemaker-inference==1.2.0
 sagemaker-training==4.0.1
 scikit-learn==1.2.1
-scipy==1.5.3
+scipy==1.8.0
 six==1.15.0
 jinja2==3.0.3
 MarkupSafe==2.1.1
