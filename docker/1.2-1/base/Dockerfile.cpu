@@ -29,6 +29,8 @@ RUN apt-get update && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
     # Kitware contains the latest version of CMake.
+    wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb && \
+    dpkg -i libffi7_3.3-4_amd64.deb && \
     apt-get -y install --no-install-recommends \
         apt-transport-https \
         ca-certificates \
