@@ -8,8 +8,8 @@ ARG CONDA_CHECKSUM=3190da6626f86eee8abf1b2fd7a5af492994eb2667357ee4243975cdbb175
 ARG CONDA_PY_VERSION=38
 ARG CONDA_PKG_VERSION=4.13.0
 ARG PYTHON_VERSION=3.8.13
-ARG PYARROW_VERSION=10.0.1
-ARG MLIO_VERSION=v0.8.0
+ARG PYARROW_VERSION=14.0.1
+ARG MLIO_VERSION=v0.9.0
 
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
@@ -29,6 +29,8 @@ RUN apt-get update && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
     # Kitware contains the latest version of CMake.
+    wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb && \
+    dpkg -i libffi7_3.3-4_amd64.deb && \
     apt-get -y install --no-install-recommends \
         apt-transport-https \
         ca-certificates \
