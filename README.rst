@@ -43,6 +43,14 @@ Recommended
 -  A Python environment management tool (e.g.
    `PyEnv <https://github.com/pyenv/pyenv>`__,
    `VirtualEnv <https://virtualenv.pypa.io/en/stable/>`__)
+   
+- Clone this repo to easy follow instructions
+
+::
+
+    git clone https://github.com/aws/sagemaker-scikit-learn-container.git
+    cd sagemaker-scikit-learn-container
+
 
 Building your image
 -------------------
