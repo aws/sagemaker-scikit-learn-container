@@ -7,3 +7,4 @@ src/sagemaker_sklearn_container.egg-info/
 __pycache__
 .coverage*
 .mypy_cache/
+env/
