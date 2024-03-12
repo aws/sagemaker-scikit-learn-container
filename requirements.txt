@@ -22,3 +22,4 @@ scikit-learn==0.23.2
 scipy==1.5.3
 six==1.15.0
 Werkzeug==0.15.6
+gevent==23.9.1
