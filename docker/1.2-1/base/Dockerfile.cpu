@@ -1,5 +1,5 @@
-ARG UBUNTU_VERSION=18.04
-ARG UBUNTU_IMAGE_DIGEST=98706f0f213dbd440021993a82d2f70451a73698315370ae8615cc468ac06624
+ARG UBUNTU_VERSION=20.04
+ARG UBUNTU_IMAGE_DIGEST=874aca52f79ae5f8258faff03e10ce99ae836f6e7d2df6ecd3da5c1cad3a912b
 
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
@@ -10,6 +10,8 @@ ARG CONDA_PKG_VERSION=4.13.0
 ARG PYTHON_VERSION=3.8.13
 ARG PYARROW_VERSION=14.0.1
 ARG MLIO_VERSION=v0.9.0
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install python and other scikit-learn runtime dependencies
 # Dependency list from http://scikit-learn.org/stable/developers/advanced_installation.html#installing-build-dependencies
@@ -25,10 +27,12 @@ RUN apt-get update && \
         openjdk-8-jdk-headless \
         unzip \
         wget \
+        tzdata \
         && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
     # Kitware contains the latest version of CMake.
+    
     wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb && \
     dpkg -i libffi7_3.3-4_amd64.deb && \
     apt-get -y install --no-install-recommends \
@@ -47,8 +51,8 @@ RUN apt-get update && \
         autoconf \
         automake \
         build-essential \
-        cmake=3.18.4-0kitware1 \
-        cmake-data=3.18.4-0kitware1 \
+        cmake \
+        cmake-data \
         doxygen \
         kitware-archive-keyring \
         libcurl4-openssl-dev \
@@ -61,6 +65,9 @@ RUN apt-get update && \
         zlib1g-dev \
         && \
     rm -rf /var/lib/apt/lists/*
+
+RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
 
 RUN cd /tmp && \
     curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-x86_64.sh && \
