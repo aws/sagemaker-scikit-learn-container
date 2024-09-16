@@ -27,6 +27,7 @@ RUN apt-get update && \
         openjdk-8-jdk-headless \
         unzip \
         wget \
+        expat \
         tzdata \
         && \
     # MLIO build dependencies
