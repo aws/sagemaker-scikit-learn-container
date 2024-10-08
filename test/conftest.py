@@ -43,7 +43,7 @@ def pytest_addoption(parser):
     parser.addoption('--install-container-support', '-C', action='store_true')
     parser.addoption('--docker-base-name', default='sk-learn')
     parser.addoption('--region', default='us-west-2')
-    parser.addoption('--framework-version', default='1.2.1')
+    parser.addoption('--framework-version', default='1.5.2')
     parser.addoption('--py-version', choices=['2', '3'], default=str(sys.version_info.major))
     parser.addoption('--processor', choices=['cpu'], default='cpu')
     # If not specified, will default to {framework-version}-{processor}-py{py-version}
