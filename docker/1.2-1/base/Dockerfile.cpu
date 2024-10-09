@@ -3,11 +3,11 @@ ARG UBUNTU_IMAGE_DIGEST=874aca52f79ae5f8258faff03e10ce99ae836f6e7d2df6ecd3da5c1c
 
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
-ARG MINICONDA_VERSION=4.12.0
-ARG CONDA_CHECKSUM=3190da6626f86eee8abf1b2fd7a5af492994eb2667357ee4243975cdbb175d7a
-ARG CONDA_PY_VERSION=38
-ARG CONDA_PKG_VERSION=4.13.0
-ARG PYTHON_VERSION=3.8.17
+ARG MINICONDA_VERSION=24.7.1
+ARG CONDA_CHECKSUM=2006a61abc8b4fd04de5eb92620e1f72bada713cc84b5b4899463095e1210556
+ARG CONDA_PY_VERSION=39
+ARG CONDA_PKG_VERSION=24.7.1
+ARG PYTHON_VERSION=3.9
 ARG PYARROW_VERSION=14.0.1
 ARG MLIO_VERSION=v0.9.0
 
@@ -71,7 +71,7 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata
 
 RUN cd /tmp && \
-    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-0-Linux-x86_64.sh && \
     echo "${CONDA_CHECKSUM} /tmp/Miniconda3.sh" | sha256sum -c - && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
     rm /tmp/Miniconda3.sh && \
@@ -89,10 +89,10 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
     echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
-    conda install -c conda-forge python=${PYTHON_VERSION} && \
-    conda install conda=${CONDA_PKG_VERSION} && \
+    conda install -c conda-forge python=${PYTHON_VERSION} --solver classic && \
+    conda install conda=${CONDA_PKG_VERSION} --solver classic && \
     conda update -y conda && \
-    conda install -c conda-forge pyarrow=${PYARROW_VERSION} && \
+    conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install pyOpenSSL==23.1.0 && \
