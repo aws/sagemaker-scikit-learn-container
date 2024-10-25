@@ -31,7 +31,6 @@ RUN apt-get update && \
         tzdata \
         apparmor \
         setuptools \
-        certifi \
         && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
@@ -99,6 +98,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install pyOpenSSL==23.1.0 && \
     python3 -m pip install wheel && \
+    python3 -m pip install --upgrade certifi && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
