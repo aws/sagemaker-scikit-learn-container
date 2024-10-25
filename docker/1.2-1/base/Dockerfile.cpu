@@ -29,7 +29,9 @@ RUN apt-get update && \
         wget \
         expat \
         tzdata \
-        apparmor\
+        apparmor \
+        setuptools \
+        certifi \
         && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
