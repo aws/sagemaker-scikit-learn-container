@@ -20,7 +20,7 @@ six==1.15.0
 jinja2==3.0.3
 MarkupSafe==2.1.1
 Werkzeug==2.1.1
-setuptools==65.5.1
+setuptools==70.0.0
 wheel==0.38.1
 numpy==1.24.1
 certifi==2023.7.22
