@@ -98,7 +98,8 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     python3 -m pip install --upgrade certifi && \
     python3 -m pip install --upgrade pyOpenSSL && \
     python3 -m pip install --upgrade Werkzeug && \
-    python3 -m pip install wheel && \
+    python3 -m pip install --upgrade wheel && \
+    python3 -m pip install --upgrade setuptools && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
