@@ -1,7 +1,7 @@
 boto3==1.28.57
 botocore>=1.31.57,<1.32.0
-cryptography==42.05
-Flask==1.1.1
+cryptography==42.0.5
+Flask==2.2.5
 itsdangerous==2.0.1
 gunicorn==20.0.4
 model-archiver==1.0.3
