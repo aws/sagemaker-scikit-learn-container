@@ -95,7 +95,6 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
-    python3 -m pip install pyOpenSSL==23.1.0 && \
     python3 -m pip install wheel && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
