@@ -30,7 +30,7 @@ RUN apt-get update && \
         expat \
         tzdata \
         apparmor\
-        libgstreamer \
+        libgstreamer1.0-0 \
         && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
