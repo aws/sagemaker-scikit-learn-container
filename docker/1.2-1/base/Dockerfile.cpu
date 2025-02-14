@@ -94,6 +94,8 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install conda=${CONDA_PKG_VERSION} --solver classic && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
+    conda install -c conda-forge libgrpc --solver classic && \
+    conda update -y libgrpc && \
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install wheel && \
