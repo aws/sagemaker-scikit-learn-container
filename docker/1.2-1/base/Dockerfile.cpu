@@ -90,7 +90,6 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
     echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
-    conda install -c conda-forge python=${PYTHON_VERSION} --solver classic && \
     conda install conda=${CONDA_PKG_VERSION} --solver classic && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
