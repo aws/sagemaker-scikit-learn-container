@@ -97,6 +97,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install wheel && \
+    python3 -m pip install --upgrade minimist protobufjs && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
@@ -116,8 +117,6 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cp -r /tmp/mlio/build/third-party/lib/libtbb* /usr/local/lib/ && \
     ldconfig && \
     rm -rf /tmp/mlio
-
-RUN conda install -c conda-forge libgrpc=1.67.1 -v --solver classic
 
 # Install awscli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
