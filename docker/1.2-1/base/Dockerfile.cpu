@@ -97,7 +97,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install wheel && \
-    python3 -m pip install --upgrade minimist protobufjs && \
+    python3 -m pip install --upgrade minimist==1.2.5 protobuf==6.10.1 && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
