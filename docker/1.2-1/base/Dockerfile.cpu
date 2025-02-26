@@ -96,6 +96,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
     conda install pip --force-reinstall && \
     conda install -c conda-forge libgrpc --solver classic && \
+    python3 -m pip install grpcio protobuf==7.2.5 && \
     python3 -c "import grpc; print('gRPC version:', grpc.__version__); from google.protobuf import __version__ as pb_version; print('Protobuf version:', pb_version)" && \
     grep -r '"minimist":' /miniconda3/pkgs/libgrpc-*/info/test/examples/node/package-lock.json | tail -n 1 && \
     python3 -m pip install --upgrade pip && \
