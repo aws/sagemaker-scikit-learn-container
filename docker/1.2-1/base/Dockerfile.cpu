@@ -95,7 +95,6 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
     conda install pip --force-reinstall && \
-    conda install -c conda-forge libgrpc=1.67.1 --force-reinstall --solver classic && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install wheel && \
     cd /tmp && \
