@@ -8,7 +8,7 @@ ARG CONDA_CHECKSUM=2006a61abc8b4fd04de5eb92620e1f72bada713cc84b5b4899463095e1210
 ARG CONDA_PY_VERSION=39
 ARG CONDA_PKG_VERSION=24.7.1
 ARG PYTHON_VERSION=3.9
-ARG PYARROW_VERSION=19.0.1
+ARG PYARROW_VERSION=14.0.1
 ARG MLIO_VERSION=v0.9.0
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -118,6 +118,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cp -r /tmp/mlio/build/third-party/lib/libtbb* /usr/local/lib/ && \
     ldconfig && \
     rm -rf /tmp/mlio
+    conda install -c conda-forge pyarrow=19.0.1 --solver classic
 
 # Install awscli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
