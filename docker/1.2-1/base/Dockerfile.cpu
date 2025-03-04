@@ -119,7 +119,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     ldconfig && \
     rm -rf /tmp/mlio
     
-RUN conda install -c conda-forge pyarrow=19.0.1 --solver classic
+RUN conda install -c conda-forge libgrpc=1.67.1 --solver classic
 
 # Install awscli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
