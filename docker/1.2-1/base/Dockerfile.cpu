@@ -67,6 +67,17 @@ RUN apt-get update && \
         python3-pip \
         zlib1g-dev \
         && \
+    # Node.js setup
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
+        gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | \
+        tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    npm install -g npm@latest && \
+    # ... rest of your setup ...
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
@@ -97,24 +108,24 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     # conda install -c conda-forge libarchive --solver classic && \
     # conda install -c conda-forge libgrpc=1.67.1 --force-reinstall --solver classic && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
-    # Temporarily install Node.js and npm
-    apt-get update && \
-    apt-get install -y ca-certificates curl gnupg && \
-    mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && \
-    apt-get install -y nodejs && \
-    npm install -g npm@latest && \
+    # # Temporarily install Node.js and npm
+    # apt-get update && \
+    # apt-get install -y ca-certificates curl gnupg && \
+    # mkdir -p /etc/apt/keyrings && \
+    # curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    # echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    # apt-get update && \
+    # apt-get install -y nodejs && \
+    # npm install -g npm@latest && \
     # Use npm to update packages
     cd /miniconda3/pkgs/libgrpc-*/info/test/examples/node && \
     npm install minimist@latest protobufjs@latest && \
-    # Remove Node.js, npm, and their dependencies
-    apt-get purge -y nodejs npm && \
-    apt-get autoremove -y && \
-    rm -rf /etc/apt/sources.list.d/nodesource.list /etc/apt/keyrings/nodesource.gpg && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
+    # # Remove Node.js, npm, and their dependencies
+    # apt-get purge -y nodejs npm && \
+    # apt-get autoremove -y && \
+    # rm -rf /etc/apt/sources.list.d/nodesource.list /etc/apt/keyrings/nodesource.gpg && \
+    # apt-get clean && \
+    # rm -rf /var/lib/apt/lists/* && \
     # Continue with the rest of your build process
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
