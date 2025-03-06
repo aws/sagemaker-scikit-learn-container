@@ -31,7 +31,7 @@ RUN apt-get update && \
         tzdata \
         apparmor\
         libgstreamer1.0-0 \
-        # linux-libc-dev \
+        linux-libc-dev \
         && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
@@ -67,16 +67,19 @@ RUN apt-get update && \
         python3-pip \
         zlib1g-dev \
         && \
-    # # Node.js setup
-    # mkdir -p /etc/apt/keyrings && \
-    # curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
-    #     gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    # echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | \
-    #     tee /etc/apt/sources.list.d/nodesource.list && \
-    # apt-get update && \
-    # apt-get install -y nodejs && \
-    # npm install -g npm@latest && \
-    # # ... rest of your setup ...
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install --upgrade certifi && \
+    apt-get clean && \
+    # Node.js setup
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
+        gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | \
+        tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    npm install -g npm@latest && \
+    # ... rest of your setup ...
     rm -rf /var/lib/apt/lists/*
 
 RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
@@ -105,18 +108,18 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install conda=${CONDA_PKG_VERSION} --solver classic && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
-    # cd /miniconda3/pkgs/libgrpc-*/info/test/examples/node && \
-    # npm install minimist@latest protobufjs@latest && \
-    # # Remove Node.js, npm, and their dependencies
-    # apt-get purge -y nodejs npm && \
-    # apt-get autoremove -y && \
-    # # Final cleanup
-    # rm -rf /etc/apt/sources.list.d/nodesource.list \
-    #        /etc/apt/keyrings/nodesource.gpg \
-    #        /etc/apt/sources.list.d/kitware.list && \
-    # apt-get clean && \
-    # rm -rf /var/lib/apt/lists/* && \
-    # # Continue with the rest of your build process
+    cd /miniconda3/pkgs/libgrpc-*/info/test/examples/node && \
+    npm install minimist@latest protobufjs@latest && \
+    # Remove Node.js, npm, and their dependencies
+    apt-get purge -y nodejs npm && \
+    apt-get autoremove -y && \
+    # Final cleanup
+    rm -rf /etc/apt/sources.list.d/nodesource.list \
+           /etc/apt/keyrings/nodesource.gpg \
+           /etc/apt/sources.list.d/kitware.list && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    # Continue with the rest of your build process
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install wheel && \
