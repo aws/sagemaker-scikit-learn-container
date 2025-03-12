@@ -22,7 +22,7 @@ phases:
 
 reports:
   status:
-    - type: STATUSES
+    type: STATUSES
 
 # Optional: If you want test reports
   test-reports:
