@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.10
+  
+  pre_build:
+    commands:
+      - echo "Starting build..."
+  
+  build:
+    commands:
+      - echo "Hello World"
+  
+  post_build:
+    commands:
+      - echo "Build completed"
+
+reports:
+  status:
+    type: STATUSES
+
+# Optional: If you want test reports
+  test-reports:
+    files:
+      - "**/*"
+    base-directory: ./reports
+    file-format: JunitXml
