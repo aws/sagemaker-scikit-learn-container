@@ -5,7 +5,7 @@ phases:
     runtime-versions:
       python: 3.10
     commands:
-      - pip install pytest  # Install pytest
+      - pip install pytest
 
   build:
     commands:
@@ -30,6 +30,12 @@ reports:
     base-directory: .
     file-format: JunitXml
     discard-paths: no
+  status:  # Add this section for GitHub status reporting
+    - type: STATUSES
+      files:
+        - test-results.xml
+      base-directory: .
+      file-format: JunitXml
 
 artifacts:
   files:
