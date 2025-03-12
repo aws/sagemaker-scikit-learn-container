@@ -3,16 +3,19 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo "Hello World"
+      - echo "Running tests..."
+      - pytest --junitxml=test-results.xml
 
 reports:
   scikit-learn-test-status:
     files:
-      - "**/*"
-    base-directory: .
-    file-format: CucumberJson
-  scikit-learn-test-test-reports:
-    files:
-      - "**/*"
+      - "test-results.xml"
     base-directory: .
     file-format: JunitXml
+    discard-paths: no
+  scikit-learn-test-test-reports:
+    files:
+      - "test-results.xml"
+    base-directory: .
+    file-format: JunitXml
+    discard-paths: no
