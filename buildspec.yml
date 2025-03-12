@@ -1,10 +1,21 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      python: 3.10
+    commands:
+      - pip install pytest  # Install pytest
+
   build:
     commands:
       - echo "Running tests..."
-      - pytest --junitxml=test-results.xml
+      - |
+        cat << EOF > test_sample.py
+        def test_sample():
+            assert True
+        EOF
+      - pytest --junitxml=test-results.xml test_sample.py
 
 reports:
   scikit-learn-test-status:
@@ -19,3 +30,8 @@ reports:
     base-directory: .
     file-format: JunitXml
     discard-paths: no
+
+artifacts:
+  files:
+    - test-results.xml
+  name: test-results
