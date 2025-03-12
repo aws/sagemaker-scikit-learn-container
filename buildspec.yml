@@ -30,12 +30,12 @@ reports:
     base-directory: .
     file-format: JunitXml
     discard-paths: no
-  status:  # Add this section for GitHub status reporting
-    type: STATUSES
-      files:
-        - test-results.xml
-      base-directory: .
-      file-format: JunitXml
+  status:
+    type: STATUSES  # Fixed: removed hyphen
+    files:
+      - test-results.xml
+    base-directory: .
+    file-format: JunitXml
 
 artifacts:
   files:
