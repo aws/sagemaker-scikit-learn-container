@@ -31,7 +31,7 @@ reports:
     file-format: JunitXml
     discard-paths: no
   status:  # Add this section for GitHub status reporting
-    - type: STATUSES
+    type: STATUSES
       files:
         - test-results.xml
       base-directory: .
