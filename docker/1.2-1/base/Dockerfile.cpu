@@ -69,6 +69,7 @@ RUN apt-get update && \
         && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install --upgrade certifi && \
+    python3 -m pip install --upgrade pyarrow && \
     apt-get clean && \
     # Node.js setup
     mkdir -p /etc/apt/keyrings && \
