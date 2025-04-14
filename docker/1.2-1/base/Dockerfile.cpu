@@ -123,7 +123,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
-    sed -i 's/find_package(Arrow [0-9.]\+ REQUIRED)/find_package(Arrow '${PYARROW_VERSION}' REQUIRED)/' CMakeLists.txt && \
+    find . -type f -exec sed -i "s/find_package(Arrow [0-9.]\+ REQUIRED)/find_package(Arrow ${PYARROW_VERSION} REQUIRED)/g" {} + && \
     build-tools/build-dependency build/third-party all && \
     mkdir -p build/release && \
     cd build/release && \
