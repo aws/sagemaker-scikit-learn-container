@@ -218,3 +218,8 @@ RUN python3 -m pip list | grep -E "pyarrow|pandas|fastparquet"
 
 RUN python3 -m pip install "werkzeug>=2.1.1" --target=/miniconda3/lib/python3.9/site-packages --force-reinstall
 RUN rm -rf /miniconda3/lib/python3.9/site-packages/Werkzeug-2.0.3*
+
+RUN pip uninstall -y protobuf typing-extensions && \
+    pip install --no-cache-dir --upgrade \
+    typing-extensions \
+    protobuf
