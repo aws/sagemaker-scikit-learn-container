@@ -211,5 +211,5 @@ RUN conda install -y -c conda-forge \
 ENV ARROW_DEFAULT_MEMORY_POOL=system
 
 
-RUN rm -rf /miniconda3/lib/python3.9/site-packages/Werkzeug-2.0.3*
 RUN python3 -m pip install "werkzeug>=2.1.1" --target=/miniconda3/lib/python3.9/site-packages --force-reinstall
+RUN rm -rf /miniconda3/lib/python3.9/site-packages/Werkzeug-2.0.3*
