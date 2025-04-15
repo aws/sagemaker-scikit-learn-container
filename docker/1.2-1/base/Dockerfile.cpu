@@ -100,7 +100,6 @@ ENV PIP_ROOT_USER_ACTION=ignore
 # We could install mlio-py from conda, but it comes  with extra support such as image reader that increases image size
 # which increases training time. We build from source to minimize the image size.
 RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
-    # Conda configuration see https://conda.io/projects/conda/en/latest/configuration.html
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
     echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
@@ -123,13 +122,20 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
-    find . -type f -exec sed -i "s/find_package(Arrow [0-9.]\+ REQUIRED)/find_package(Arrow ${PYARROW_VERSION} REQUIRED)/g" {} + && \
+    # Update Arrow version in all CMake files before build-dependency
+    find . -type f -name "CMakeLists.txt" -exec sed -i -e "s/find_package(Arrow [0-9.]\+ REQUIRED)/find_package(Arrow ${PYARROW_VERSION} REQUIRED)/g" {} + && \
+    find . -type f -name "*.cmake" -exec sed -i -e "s/find_package(Arrow [0-9.]\+ REQUIRED)/find_package(Arrow ${PYARROW_VERSION} REQUIRED)/g" {} + && \
+    # Also update any direct version references
+    find . -type f -name "CMakeLists.txt" -exec sed -i -e "s/Arrow 14.0.1/Arrow ${PYARROW_VERSION}/g" {} + && \
+    find . -type f -name "*.cmake" -exec sed -i -e "s/Arrow 14.0.1/Arrow ${PYARROW_VERSION}/g" {} + && \
+    # Now proceed with build
     build-tools/build-dependency build/third-party all && \
     mkdir -p build/release && \
     cd build/release && \
     cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
           -DCMAKE_PREFIX_PATH="$(pwd)/../third-party" \
           -DArrow_DIR=/miniconda3/lib/cmake/Arrow \
+          -DARROW_VERSION=${PYARROW_VERSION} \
           ../.. && \
     cmake --build . && \
     cmake --build . --target install && \
@@ -137,6 +143,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
           -DPYTHON_EXECUTABLE="/miniconda3/bin/python3" \
           -DMLIO_INCLUDE_ARROW_INTEGRATION=ON \
           -DArrow_DIR=/miniconda3/lib/cmake/Arrow \
+          -DARROW_VERSION=${PYARROW_VERSION} \
           ../.. && \
     cmake --build . --target mlio-py && \
     cmake --build . --target mlio-arrow && \
