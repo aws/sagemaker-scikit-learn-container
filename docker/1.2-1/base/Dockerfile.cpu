@@ -177,4 +177,4 @@ conda install -y -c conda-forge pyarrow=${PYARROW_VERSION} pandas --solver class
 python3 -c "import pyarrow; import pandas; print(f'PyArrow version: {pyarrow.__version__}')"
 
 
-RUN python3 -m pip install "werkzeug>=2.1.1"
+RUN python3 -m pip install "werkzeug>=2.1.1" --target=/miniconda3/lib/python3.9/site-packages --force-reinstall
