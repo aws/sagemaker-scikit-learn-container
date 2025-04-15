@@ -222,4 +222,16 @@ RUN rm -rf /miniconda3/lib/python3.9/site-packages/Werkzeug-2.0.3*
 RUN pip uninstall -y protobuf typing-extensions && \
     pip install --no-cache-dir --upgrade \
     typing-extensions \
+    importlib-metadata \
+    typing \
     protobuf
+
+# # Add the test directly in Dockerfile to catch issues during build
+# RUN python3 -c "import pandas as pd; \
+#     import pyarrow; \
+#     import pyarrow.parquet; \
+#     df = pd.DataFrame({'x': [1, 2]}); \
+#     df.to_parquet('test.parquet', engine='pyarrow'); \
+#     print('PyArrow parquet conversion test passed successfully'); \
+#     import os; \
+#     os.remove('test.parquet')"
