@@ -169,7 +169,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8 LANG=C.U
 # Scikit-learn now requires Python 3.6 or newer.
 RUN python3 -m pip install --no-cache -I scikit-learn==1.2.1
 
-RUN python3 -m pip install --no-cache pyarrow==${PYARROW_VERSION}
-RUN conda install -y -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic
+RUN python3 -m pip uninstall -y pyarrow && \
+python3 -m pip install --no-cache-dir pyarrow==${PYARROW_VERSION} && \
+python3 -m pip install --no-cache-dir pandas && \
+python3 -m pip install --no-cache-dir fastparquet && \
+conda install -y -c conda-forge pyarrow=${PYARROW_VERSION} pandas --solver classic && \
+python3 -c "import pyarrow; import pandas; print(f'PyArrow version: {pyarrow.__version__}')"
+
 
 RUN python3 -m pip install "werkzeug>=2.1.1"
