@@ -183,7 +183,7 @@ RUN python3 -m pip uninstall -y pyarrow && \
 python3 -m pip install --no-cache-dir pyarrow==${PYARROW_VERSION} && \
 python3 -m pip install --no-cache-dir pandas && \
 python3 -m pip install --no-cache-dir fastparquet && \
-conda install -y -c conda-forge pyarrow=${PYARROW_VERSION} pandas --solver classic && \
+conda install -y -c conda-forge pyarrow=${PYARROW_VERSION} pandas fastparquet --solver classic && \
 python3 -c "import pyarrow; import pandas; print(f'PyArrow version: {pyarrow.__version__}')"
 
 
