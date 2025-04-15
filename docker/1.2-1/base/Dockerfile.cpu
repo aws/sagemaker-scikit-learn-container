@@ -186,5 +186,6 @@ python3 -m pip install --no-cache-dir fastparquet && \
 conda install -y -c conda-forge pyarrow=${PYARROW_VERSION} pandas fastparquet --solver classic && \
 python3 -c "import pyarrow; import pandas; print(f'PyArrow version: {pyarrow.__version__}')"
 
+RUN rm -rf /miniconda3/lib/python3.9/site-packages/Werkzeug-2.0.3.dist-info/
 
 RUN python3 -m pip install "werkzeug>=2.1.1" --target=/miniconda3/lib/python3.9/site-packages --force-reinstall
