@@ -216,9 +216,6 @@ RUN python3 -c "import pyarrow; print(pyarrow.__file__)"
 RUN python3 -m pip list | grep -E "pyarrow|pandas|fastparquet"
 
 
-RUN python3 -m pip install "werkzeug>=2.1.1" --target=/miniconda3/lib/python3.9/site-packages --force-reinstall
-RUN rm -rf /miniconda3/lib/python3.9/site-packages/Werkzeug-2.0.3*
-
 RUN python3 -m pip uninstall -y typing
 
 # # Add the test directly in Dockerfile to catch issues during build
