@@ -22,7 +22,7 @@ jinja2==3.0.3
 MarkupSafe==2.1.1
 numpy==1.24.1
 gevent==23.9.1
-Werkzeug==2.1.1
+Werkzeug>=2.1.1
 setuptools
 wheel
 certifi
