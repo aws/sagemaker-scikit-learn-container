@@ -209,18 +209,3 @@ RUN conda install -y -c conda-forge \
 
 # Set the Arrow memory allocator
 ENV ARROW_DEFAULT_MEMORY_POOL=system
-
-RUN python3 -c "import sys; print(sys.path)"
-RUN python3 -c "import pyarrow; print(pyarrow.__file__)"
-RUN python3 -m pip list | grep -E "pyarrow|pandas|fastparquet"
-
-
-# # Add the test directly in Dockerfile to catch issues during build
-# RUN python3 -c "import pandas as pd; \
-#     import pyarrow; \
-#     import pyarrow.parquet; \
-#     df = pd.DataFrame({'x': [1, 2]}); \
-#     df.to_parquet('test.parquet', engine='pyarrow'); \
-#     print('PyArrow parquet conversion test passed successfully'); \
-#     import os; \
-#     os.remove('test.parquet')"
