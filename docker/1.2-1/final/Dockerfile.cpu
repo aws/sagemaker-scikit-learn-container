@@ -5,7 +5,7 @@ ENV PIP_ROOT_USER_ACTION=ignore
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
 COPY requirements.txt /requirements.txt
-RUN python -m pip install -r /requirements.txt && \
+RUN python -m pip install --no-cache-dir -r /requirements.txt && \
     rm /requirements.txt
 
 COPY dist/sagemaker_sklearn_container-2.0-py3-none-any.whl /sagemaker_sklearn_container-2.0-py3-none-any.whl
@@ -13,8 +13,6 @@ RUN rm /miniconda3/lib/python3.9/site-packages/**/REQUESTED && \
     rm /miniconda3/lib/python3.9/site-packages/**/direct_url.json
 RUN pip install --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
     rm /sagemaker_sklearn_container-2.0-py3-none-any.whl
-
-RUN python -m pip install -U Flask
 
 ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main
 ENV SAGEMAKER_SERVING_MODULE sagemaker_sklearn_container.serving:main
