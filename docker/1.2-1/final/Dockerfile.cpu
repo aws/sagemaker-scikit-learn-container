@@ -14,6 +14,18 @@ RUN rm /miniconda3/lib/python3.9/site-packages/**/REQUESTED && \
 RUN pip install --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
     rm /sagemaker_sklearn_container-2.0-py3-none-any.whl
 
+
+# Install PyArrow and dependencies in the correct order
+RUN conda install -y -c conda-forge \
+    pyarrow=${PYARROW_VERSION} \
+    fastparquet \
+    --solver classic && \
+    python3 -m pip install --no-cache-dir \
+    pyarrow==${PYARROW_VERSION} \
+    fastparquet && \
+    # Verify the installation
+    python3 -c "import pyarrow; import pyarrow.parquet; print(f'PyArrow version: {pyarrow.__version__}')"
+
 ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main
 ENV SAGEMAKER_SERVING_MODULE sagemaker_sklearn_container.serving:main
 
