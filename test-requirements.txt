@@ -1,4 +1,4 @@
-Flask
+Flask>=3.1.0
 PyYAML
 boto3>=1.24.17
 coverage
