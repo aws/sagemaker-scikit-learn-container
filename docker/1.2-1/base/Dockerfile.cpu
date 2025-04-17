@@ -192,20 +192,18 @@ RUN apt-get update && apt-get install -y \
 
 # Then clean up any existing PyArrow installations
 RUN conda clean --all && \
-    python3 -m pip uninstall -y pyarrow pandas fastparquet
+    python3 -m pip uninstall -y pyarrow fastparquet
 
 # Install PyArrow and dependencies in the correct order
 RUN conda install -y -c conda-forge \
     pyarrow=${PYARROW_VERSION} \
-    pandas \
     fastparquet \
     --solver classic && \
     python3 -m pip install --no-cache-dir \
     pyarrow==${PYARROW_VERSION} \
-    pandas \
     fastparquet && \
     # Verify the installation
-    python3 -c "import pyarrow; import pyarrow.parquet; import pandas as pd; print(f'PyArrow version: {pyarrow.__version__}')"
+    python3 -c "import pyarrow; import pyarrow.parquet; print(f'PyArrow version: {pyarrow.__version__}')"
 
 # Set the Arrow memory allocator
 ENV ARROW_DEFAULT_MEMORY_POOL=system
