@@ -14,6 +14,12 @@ RUN rm /miniconda3/lib/python3.9/site-packages/**/REQUESTED && \
 RUN pip install --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
     rm /sagemaker_sklearn_container-2.0-py3-none-any.whl
 
+# Create a compatibility module for Flask to work with newer Werkzeug
+RUN echo 'from werkzeug.wrappers import Response as BaseResponse' > /miniconda3/lib/python3.9/site-packages/werkzeug/wrappers/compat.py && \
+    sed -i 's/from werkzeug.wrappers import BaseResponse/from werkzeug.wrappers.compat import BaseResponse/' /miniconda3/lib/python3.9/site-packages/flask/app.py && \
+    find /miniconda3/lib/python3.9/site-packages/flask -type f -name "*.py" -exec sed -i 's/from werkzeug.wrappers import BaseResponse/from werkzeug.wrappers.compat import BaseResponse/g' {} \;
+
+
 ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main
 ENV SAGEMAKER_SERVING_MODULE sagemaker_sklearn_container.serving:main
 
