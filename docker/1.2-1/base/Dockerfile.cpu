@@ -32,6 +32,7 @@ RUN apt-get update && \
         apparmor\
         libgstreamer1.0-0 \
         linux-libc-dev \
+        libsoup2.4-1 \
         && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
