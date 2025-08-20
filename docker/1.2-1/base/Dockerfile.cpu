@@ -29,7 +29,7 @@ ARG CONDA_CHECKSUM=2006a61abc8b4fd04de5eb92620e1f72bada713cc84b5b4899463095e1210
 ARG CONDA_PY_VERSION=39
 ARG CONDA_PKG_VERSION=24.7.1
 ARG PYTHON_VERSION=3.9
-ARG PYARROW_VERSION=14.0.1
+ARG PYARROW_VERSION=17.0.0
 ARG MLIO_VERSION=v0.9.0
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -91,6 +91,7 @@ RUN apt-get update && \
         && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install --upgrade certifi && \
+    python3 -m pip install --upgrade pyarrow && \
     apt-get clean && \
     # Node.js setup
     mkdir -p /etc/apt/keyrings && \
@@ -121,40 +122,51 @@ ENV PIP_ROOT_USER_ACTION=ignore
 # We could install mlio-py from conda, but it comes  with extra support such as image reader that increases image size
 # which increases training time. We build from source to minimize the image size.
 RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
-    # Conda configuration see https://conda.io/projects/conda/en/latest/configuration.html
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
     echo "python ${PYTHON_VERSION}.*" >> /miniconda3/conda-meta/pinned && \
     conda install -c conda-forge python=${PYTHON_VERSION} --solver classic && \
-    conda install conda=${CONDA_PKG_VERSION} --solver classic && \
+    conda install conda=${CONDA_PKG_VERSION} arrow-cpp=${PYARROW_VERSION} --solver classic && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
     cd /miniconda3/pkgs/libgrpc-*/info/test/examples/node && \
     npm install minimist@latest protobufjs@latest && \
-    # Remove Node.js, npm, and their dependencies
     apt-get purge -y nodejs npm && \
     apt-get autoremove -y && \
-    # Final cleanup
     rm -rf /etc/apt/sources.list.d/nodesource.list \
            /etc/apt/keyrings/nodesource.gpg \
            /etc/apt/sources.list.d/kitware.list && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    # Continue with the rest of the build process
     conda install pip --force-reinstall && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install wheel && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
+    # Update Arrow version in all CMake files before build-dependency
+    find . -type f -name "CMakeLists.txt" -exec sed -i -e "s/find_package(Arrow [0-9.]\+ REQUIRED)/find_package(Arrow ${PYARROW_VERSION} REQUIRED)/g" {} + && \
+    find . -type f -name "*.cmake" -exec sed -i -e "s/find_package(Arrow [0-9.]\+ REQUIRED)/find_package(Arrow ${PYARROW_VERSION} REQUIRED)/g" {} + && \
+    # Also update any direct version references
+    find . -type f -name "CMakeLists.txt" -exec sed -i -e "s/Arrow 14.0.1/Arrow ${PYARROW_VERSION}/g" {} + && \
+    find . -type f -name "*.cmake" -exec sed -i -e "s/Arrow 14.0.1/Arrow ${PYARROW_VERSION}/g" {} + && \
+    # Now proceed with build
     build-tools/build-dependency build/third-party all && \
     mkdir -p build/release && \
     cd build/release && \
-    cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="$(pwd)/../third-party" ../.. && \
+    cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DCMAKE_PREFIX_PATH="$(pwd)/../third-party" \
+          -DArrow_DIR=/miniconda3/lib/cmake/Arrow \
+          -DARROW_VERSION=${PYARROW_VERSION} \
+          ../.. && \
     cmake --build . && \
     cmake --build . --target install && \
-    cmake -DMLIO_INCLUDE_PYTHON_EXTENSION=ON -DPYTHON_EXECUTABLE="/miniconda3/bin/python3" \
-        -DMLIO_INCLUDE_ARROW_INTEGRATION=ON ../.. && \
+    cmake -DMLIO_INCLUDE_PYTHON_EXTENSION=ON \
+          -DPYTHON_EXECUTABLE="/miniconda3/bin/python3" \
+          -DMLIO_INCLUDE_ARROW_INTEGRATION=ON \
+          -DArrow_DIR=/miniconda3/lib/cmake/Arrow \
+          -DARROW_VERSION=${PYARROW_VERSION} \
+          ../.. && \
     cmake --build . --target mlio-py && \
     cmake --build . --target mlio-arrow && \
     cd ../../src/mlio-py && \
@@ -195,3 +207,32 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8 LANG=C.U
 # Scikit-learn 0.20 was the last version to support Python 2.7 and Python 3.4.
 # Scikit-learn now requires Python 3.6 or newer.
 RUN python3 -m pip install --no-cache -I scikit-learn==1.2.1
+
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:ubuntu-toolchain-r/test && \
+    apt-get update && \
+    apt-get install -y gcc-9 g++-9 && \
+    apt-get upgrade -y libstdc++6 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+
+# First, ensure we have all necessary build dependencies
+RUN apt-get update && apt-get install -y \
+    cmake \
+    build-essential \
+    libboost-dev \
+    libboost-filesystem-dev \
+    libboost-system-dev \
+    libboost-regex-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Then clean up any existing PyArrow installations
+RUN conda clean --all && \
+    python3 -m pip uninstall -y pyarrow fastparquet
+
+
+# Set the Arrow memory allocator
+ENV ARROW_DEFAULT_MEMORY_POOL=system
