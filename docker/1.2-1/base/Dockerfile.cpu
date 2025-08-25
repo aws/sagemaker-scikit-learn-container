@@ -187,6 +187,8 @@ RUN apt-get update && apt-get install -y \
     libboost-filesystem-dev \
     libboost-system-dev \
     libboost-regex-dev \
+    linux-libc-dev \
+    libxml2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
