@@ -1,6 +1,27 @@
 ARG UBUNTU_VERSION=20.04
 ARG UBUNTU_IMAGE_DIGEST=874aca52f79ae5f8258faff03e10ce99ae836f6e7d2df6ecd3da5c1cad3a912b
 
+# Build stage for SQLite compilation
+FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST} as sqlite-builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        wget \
+        ca-certificates \
+        && \
+    cd /tmp && \
+    wget https://www.sqlite.org/2025/sqlite-autoconf-3500200.tar.gz && \
+    tar xzf sqlite-autoconf-3500200.tar.gz && \
+    cd sqlite-autoconf-3500200 && \
+    ./configure --prefix=/usr/local && \
+    make && \
+    make install && \
+    ldconfig && \
+    cd / && \
+    rm -rf /tmp/sqlite-autoconf-3500200 /tmp/sqlite-autoconf-3500200.tar.gz && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Main image
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
 ARG MINICONDA_VERSION=24.7.1
@@ -33,6 +54,7 @@ RUN apt-get update && \
         libgstreamer1.0-0 \
         linux-libc-dev \
         libxml2 \
+        libsqlite3-0 \
         && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
@@ -142,6 +164,23 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cp -r /tmp/mlio/build/third-party/lib/libtbb* /usr/local/lib/ && \
     ldconfig && \
     rm -rf /tmp/mlio
+
+# Copy compiled SQLite from builder stage
+COPY --from=sqlite-builder /usr/local/bin/sqlite3 /usr/local/bin/sqlite3
+COPY --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
+COPY --from=sqlite-builder /usr/local/include/sqlite3*.h /usr/local/include/
+
+# Update library cache and ensure /usr/local/bin is in PATH
+RUN ldconfig && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/sqlite3.conf && \
+    ldconfig
+
+ENV PATH="/usr/local/bin:${PATH}"
+
+# This command will check the version and print it to the build logs
+RUN sqlite3 --version
+
+RUN apt list --installed
 
 # Install awscli
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
