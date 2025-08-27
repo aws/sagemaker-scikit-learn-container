@@ -53,6 +53,7 @@ RUN apt-get update && \
         apparmor\
         libgstreamer1.0-0 \
         linux-libc-dev \
+        libxml2 \
         libsqlite3-0 \
         && \
     # MLIO build dependencies
