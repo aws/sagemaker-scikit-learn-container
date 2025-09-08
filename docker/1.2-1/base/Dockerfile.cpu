@@ -24,10 +24,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Main image
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
 
-ARG MINICONDA_VERSION=24.7.1
-ARG CONDA_CHECKSUM=2006a61abc8b4fd04de5eb92620e1f72bada713cc84b5b4899463095e1210556
+ARG MINICONDA_VERSION=25.1.1
+ARG CONDA_CHECKSUM=b40682cedf1e1755c02555f8d3d98aadb4607a68da7caf72a9bbe1fb9ae0b904
 ARG CONDA_PY_VERSION=39
-ARG CONDA_PKG_VERSION=24.7.1
+ARG CONDA_PKG_VERSION=25.1.1
 ARG PYTHON_VERSION=3.9
 ARG PYARROW_VERSION=14.0.1
 ARG MLIO_VERSION=v0.9.0
@@ -108,7 +108,7 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata
 
 RUN cd /tmp && \
-    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-0-Linux-x86_64.sh && \
+    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-2-Linux-x86_64.sh && \
     echo "${CONDA_CHECKSUM} /tmp/Miniconda3.sh" | sha256sum -c - && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
     rm /tmp/Miniconda3.sh && \
@@ -130,6 +130,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install conda=${CONDA_PKG_VERSION} --solver classic && \
     conda update -y conda && \
     conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
+    conda install -c conda-forge libgrpc=1.67.1 --force-reinstall --solver classic && \
     cd /miniconda3/pkgs/libgrpc-*/info/test/examples/node && \
     npm install minimist@latest protobufjs@latest && \
     # Remove Node.js, npm, and their dependencies
