@@ -1,11 +1,12 @@
-FROM sklearn-base:1.2-1-1
-ENV SAGEMAKER_SKLEARN_VERSION 1.2-1-1
+FROM sklearn-base:1.4-2
+ENV SAGEMAKER_SKLEARN_VERSION 1.4-2
 ENV PIP_ROOT_USER_ACTION=ignore
 
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
 COPY requirements.txt /requirements.txt
 RUN python -m pip install -r /requirements.txt && \
+    python -m pip install --force-reinstall numpy scipy pandas==1.4.2 scikit-learn==1.4.2 && \
     rm /requirements.txt
 
 COPY dist/sagemaker_sklearn_container-2.0-py3-none-any.whl /sagemaker_sklearn_container-2.0-py3-none-any.whl
