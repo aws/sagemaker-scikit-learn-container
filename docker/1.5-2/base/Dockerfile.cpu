@@ -195,4 +195,4 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8 LANG=C.U
 # Install Scikit-Learn
 # Scikit-learn 0.20 was the last version to support Python 2.7 and Python 3.4.
 # Scikit-learn now requires Python 3.6 or newer.
-RUN python3 -m pip install --no-cache -I scikit-learn==1.4.2
+RUN python3 -m pip install --no-cache -I scikit-learn==1.5.2
