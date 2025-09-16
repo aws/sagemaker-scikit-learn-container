@@ -1,5 +1,5 @@
-ARG UBUNTU_VERSION=20.04
-ARG UBUNTU_IMAGE_DIGEST=874aca52f79ae5f8258faff03e10ce99ae836f6e7d2df6ecd3da5c1cad3a912b
+ARG UBUNTU_VERSION=22.04
+ARG UBUNTU_IMAGE_DIGEST=4e0171b9275e12d375863f2b3ae9ce00a4c53ddda176bd55868df97ac6f21a6e
 
 # Build stage for SQLite compilation
 FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST} as sqlite-builder
@@ -52,10 +52,11 @@ RUN apt-get update && \
         tzdata \
         apparmor\
         libgstreamer1.0-0 \
-        linux-libc-dev \
         libxml2 \
-        libsqlite3-0 \
         && \
+    # Explicitly upgrade linux-libc-dev to latest version and remove old versions
+    apt-get -y install --only-upgrade linux-libc-dev && \
+    apt-get -y autoremove && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
     # Kitware contains the latest version of CMake.
@@ -70,7 +71,7 @@ RUN apt-get update && \
     wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | \
         gpg --dearmor - | \
         tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \
-    echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ bionic main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \
+    echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \
     apt-get update && \
     rm /usr/share/keyrings/kitware-archive-keyring.gpg && \
     apt-get install -y --no-install-recommends \
@@ -92,7 +93,10 @@ RUN apt-get update && \
         && \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install --upgrade certifi && \
+    # Clean up package cache and remove old package versions to address CVEs
     apt-get clean && \
+    apt-get autoclean && \
+    apt-get autoremove --purge -y && \
     # Node.js setup
     mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | \
@@ -148,10 +152,13 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     cd /tmp && \
     git clone --branch ${MLIO_VERSION} https://github.com/awslabs/ml-io.git mlio && \
     cd mlio && \
+    export CMAKE_POLICY_VERSION_MINIMUM=3.5 && \
+    export CFLAGS="-Wno-error=maybe-uninitialized -Wno-error=nonnull -Wno-error=deprecated-declarations" && \
+    export CXXFLAGS="-Wno-error=maybe-uninitialized -Wno-error=nonnull -Wno-error=deprecated-declarations" && \
     build-tools/build-dependency build/third-party all && \
     mkdir -p build/release && \
     cd build/release && \
-    cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="$(pwd)/../third-party" ../.. && \
+    cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="$(pwd)/../third-party" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ../.. && \
     cmake --build . && \
     cmake --build . --target install && \
     cmake -DMLIO_INCLUDE_PYTHON_EXTENSION=ON -DPYTHON_EXECUTABLE="/miniconda3/bin/python3" \
