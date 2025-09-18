@@ -12,6 +12,12 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
+# Fix for Python 3.10+ compatibility
+import collections
+import collections.abc
+if not hasattr(collections, 'Mapping'):
+    collections.Mapping = collections.abc.Mapping
+
 import json
 import logging
 import os
