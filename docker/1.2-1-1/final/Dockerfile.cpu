@@ -8,10 +8,18 @@ COPY requirements.txt /requirements.txt
 RUN python -m pip install -r /requirements.txt && \
     rm /requirements.txt
 
+# Fix Python 3.10 compatibility for sagemaker-containers
+RUN python3 -c "import sys; sys.path.insert(0, '/miniconda3/lib/python3.10/site-packages'); \
+    import sagemaker_containers._mapping as m; \
+    import collections.abc; \
+    setattr(collections, 'Mapping', collections.abc.Mapping); \
+    exec(open('/miniconda3/lib/python3.10/site-packages/sagemaker_containers/_mapping.py').read().replace('collections.Mapping', 'collections.abc.Mapping'))" || \
+    sed -i 's/collections\.Mapping/collections.abc.Mapping/g' /miniconda3/lib/python3.10/site-packages/sagemaker_containers/_mapping.py
+
 COPY dist/sagemaker_sklearn_container-2.0-py3-none-any.whl /sagemaker_sklearn_container-2.0-py3-none-any.whl
 RUN rm /miniconda3/lib/python3.10/site-packages/**/REQUESTED && \
     rm /miniconda3/lib/python3.10/site-packages/**/direct_url.json
-RUN pip install --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
+RUN python3 -m pip install --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
     rm /sagemaker_sklearn_container-2.0-py3-none-any.whl
 
 ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main
