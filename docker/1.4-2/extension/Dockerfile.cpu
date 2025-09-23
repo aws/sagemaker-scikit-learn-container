@@ -1,9 +1,9 @@
-FROM preprod-sklearn:1.2-1
+FROM preprod-sklearn:1.4-2
 
-RUN pip freeze | grep -q 'scikit-learn==1.5.2'; \
+RUN pip freeze | grep -q 'scikit-learn==1.4.2'; \
 	if [ $? -eq 0 ]; \
-		then echo 'scikit-learn version 1.5.2 requirement met'; \
-		else echo 'ERROR: Expected scikit-learn version is 1.5.2, check base images for scikit-learn version' && \
+		then echo 'scikit-learn version 1.4.2 requirement met'; \
+		else echo 'ERROR: Expected scikit-learn version is 1.4.2, check base images for scikit-learn version' && \
 			 exit 1; fi
 
 RUN pip install --upgrade --no-cache --no-deps sagemaker-scikit-learn-extension==2.5.0
