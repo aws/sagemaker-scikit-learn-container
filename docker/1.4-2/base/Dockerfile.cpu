@@ -29,7 +29,7 @@ ARG CONDA_CHECKSUM=684cda724bc37e3bbbb342e440fc4cac515c92e91a489eb4359feca353828
 ARG CONDA_PY_VERSION=310
 ARG CONDA_PKG_VERSION=24.7.1
 ARG PYTHON_VERSION=3.10
-ARG PYARROW_VERSION=20.0.0
+ARG PYARROW_VERSION=17.0.0
 ARG MLIO_VERSION=v0.9.0
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -129,7 +129,7 @@ RUN echo "conda ${CONDA_PKG_VERSION}" >> /miniconda3/conda-meta/pinned && \
     conda install -c conda-forge python=${PYTHON_VERSION} --solver classic && \
     conda install conda=${CONDA_PKG_VERSION} --solver classic && \
     conda update -y conda && \
-    conda install -c conda-forge pyarrow=${PYARROW_VERSION} --solver classic && \
+    conda install -y pyarrow=${PYARROW_VERSION} && \
     cd /miniconda3/pkgs/libgrpc-*/info/test/examples/node && \
     npm install minimist@latest protobufjs@latest && \
     # Remove Node.js, npm, and their dependencies
