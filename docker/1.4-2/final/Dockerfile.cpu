@@ -5,7 +5,7 @@ ENV PIP_ROOT_USER_ACTION=ignore
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
 # Install scientific packages via conda to avoid binary incompatibility
-RUN conda install -c conda-forge numpy==2.0.0 scipy>=1.9.0 pandas>=1.5.0 scikit-learn==1.4.2 pyarrow>=14.0.0 --solver classic
+RUN conda install -y numpy==2.0.0 scipy>=1.9.0 pandas>=1.5.0 scikit-learn==1.4.2 pyarrow==17.0.0
 
 # Install remaining packages via pip
 COPY requirements.txt /requirements.txt
