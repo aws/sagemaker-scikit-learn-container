@@ -20,8 +20,8 @@ import shutil
 import sys
 import tempfile
 
-# from sagemaker import Session
-# from .utils import local_mode
+from sagemaker import Session
+from .utils import local_mode
 
 logger = logging.getLogger(__name__)
 logging.getLogger('boto').setLevel(logging.INFO)
@@ -43,7 +43,7 @@ def pytest_addoption(parser):
     parser.addoption('--install-container-support', '-C', action='store_true')
     parser.addoption('--docker-base-name', default='sk-learn')
     parser.addoption('--region', default='us-west-2')
-    parser.addoption('--framework-version', default='1.5.2')
+    parser.addoption('--framework-version', default='1.4.2')
     parser.addoption('--py-version', choices=['2', '3'], default=str(sys.version_info.major))
     parser.addoption('--processor', choices=['cpu'], default='cpu')
     # If not specified, will default to {framework-version}-{processor}-py{py-version}
@@ -135,9 +135,9 @@ def fixture_build_image(request, framework_version, py_version, processor, tag, 
     return tag
 
 
-# @pytest.fixture(scope='session', name='sagemaker_session')
-# def fixture_sagemaker_session(region):
-#     return Session(boto_session=boto3.Session(region_name=region))
+@pytest.fixture(scope='session', name='sagemaker_session')
+def fixture_sagemaker_session(region):
+    return Session(boto_session=boto3.Session(region_name=region))
 
 
 @pytest.fixture(name='aws_id', scope='session')
