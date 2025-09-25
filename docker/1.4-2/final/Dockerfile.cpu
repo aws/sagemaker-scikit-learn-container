@@ -4,30 +4,16 @@ ENV PIP_ROOT_USER_ACTION=ignore
 
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
 
-# Install scientific packages via conda to avoid binary incompatibility
-RUN conda install -c conda-forge numpy==2.1.0 scipy>=1.9.0 pandas>=1.5.0 scikit-learn==1.4.2 pyarrow==17.0.0 --solver classic
-
 # Install remaining packages via pip
 COPY requirements.txt /requirements.txt
-RUN python -m pip install -r /requirements.txt && \
+RUN uv pip install --system -r /requirements.txt && \
     rm /requirements.txt
-    
+
 # Fix Python 3.10 compatibility for sagemaker-containers
-RUN python3 -c "import sys; sys.path.insert(0, '/miniconda3/lib/python3.10/site-packages'); \
-    import sagemaker_containers._mapping as m; \
-    import collections.abc; \
-    setattr(collections, 'Mapping', collections.abc.Mapping); \
-    exec(open('/miniconda3/lib/python3.10/site-packages/sagemaker_containers/_mapping.py').read().replace('collections.Mapping', 'collections.abc.Mapping'))" || \
-    sed -i 's/collections\.Mapping/collections.abc.Mapping/g' /miniconda3/lib/python3.10/site-packages/sagemaker_containers/_mapping.py
-
-# Copy fixed conftest.py to avoid pandas binary incompatibility
-COPY test/conftest.py /code/test/conftest.py
-
+RUN python3 -c "import sys; import os; site_packages = '/usr/local/lib/python3.10/dist-packages'; mapping_file = os.path.join(site_packages, 'sagemaker_containers/_mapping.py'); exec('if os.path.exists(mapping_file):\\n    with open(mapping_file, \"r\") as f:\\n        content = f.read()\\n    content = content.replace(\"collections.Mapping\", \"collections.abc.Mapping\")\\n    with open(mapping_file, \"w\") as f:\\n        f.write(content)')"
 
 COPY dist/sagemaker_sklearn_container-2.0-py3-none-any.whl /sagemaker_sklearn_container-2.0-py3-none-any.whl
-RUN rm /miniconda3/lib/python3.10/site-packages/**/REQUESTED && \
-    rm /miniconda3/lib/python3.10/site-packages/**/direct_url.json
-RUN pip install --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
+RUN uv pip install --system --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
     rm /sagemaker_sklearn_container-2.0-py3-none-any.whl
 
 ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main

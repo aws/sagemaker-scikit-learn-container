@@ -1,0 +1,34 @@
+[project]
+name = "sagemaker-sklearn-container"
+version = "2.0"
+description = "SageMaker Scikit-learn Container"
+requires-python = "==3.10.*"
+license = "Apache-2.0"
+authors = [{name = "Amazon Web Services"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+]
+dynamic = ["readme", "dependencies", "optional-dependencies"]
+
+[project.scripts]
+serve = "sagemaker_sklearn_container.serving:serving_entrypoint"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst"]}
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies.test = {file = ["test-requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["test*"]
+
+[tool.setuptools.package-dir]
+"" = "src"
