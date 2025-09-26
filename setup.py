@@ -47,5 +47,5 @@ setup(
         'console_scripts': 'serve=sagemaker_sklearn_container.serving:serving_entrypoint'
     },
 
-    python_requires='>=3.6',
+    python_requires='>=3.10',
 )
