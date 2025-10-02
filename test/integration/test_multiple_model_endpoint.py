@@ -121,6 +121,27 @@ def make_unload_model_request(model_name):
     return response.status_code, response.content.decode(encodings.utf_8.getregentry().name)
 
 
+@pytest.fixture(autouse=True)
+def cleanup_models():
+    """Cleanup fixture to unload all models between tests"""
+    yield  # Run the test
+    # Cleanup after test
+    try:
+        code, res = make_list_model_request()
+        if code == 200:
+            models_data = json.loads(res) if isinstance(res, str) else res
+            models = models_data.get('models', [])
+            for model in models:
+                model_name = model.get('modelName')
+                if model_name:
+                    try:
+                        make_unload_model_request(model_name)
+                    except Exception:
+                        pass  # Ignore individual unload errors
+    except Exception:
+        pass  # Ignore cleanup errors
+
+
 def test_ping():
     res = requests.get(PING_URL)
     assert res.status_code == 200
