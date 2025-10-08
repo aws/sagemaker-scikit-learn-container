@@ -27,20 +27,23 @@ ARG PYARROW_VERSION=17.0.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install python and other scikit-learn runtime dependencies
+# Install uv and Python 3.10
 RUN apt-get update && \
     apt-get -y install --no-install-recommends \
         build-essential curl git wget ca-certificates lsb-release software-properties-common && \
-    # Add Apache Arrow repository
-    wget https://packages.apache.org/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb && \
-    apt install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb && \
+    # Install uv
+    curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    mv /root/.local/bin/uv /usr/local/bin/uv && \
+    # Install Python 3.10 with uv
+    uv python install 3.10 && \
+    ln -sf $(uv python find 3.10) /usr/bin/python3.10 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+
+    # Add Apache Arrow repository (hardcoded for Ubuntu 20.04 focal)
+RUN wget https://packages.apache.org/artifactory/arrow/ubuntu/apache-arrow-apt-source-latest-focal.deb && \
+    apt install -y -V ./apache-arrow-apt-source-latest-focal.deb && \
     apt-get update && \
     apt-get install -y -V libarrow-dev=17.0.0-1 libarrow-dataset-dev=17.0.0-1 libparquet-dev=17.0.0-1 libarrow-acero-dev=17.0.0-1 && \
-    # Add deadsnakes PPA for Python 3.10
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get -y install --no-install-recommends \
-        python3.10 python3.10-dev python3.10-distutils && \
     # MLIO build dependencies
     wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb && \
     dpkg -i libffi7_3.3-4_amd64.deb && \
@@ -54,8 +57,6 @@ RUN apt-get update && \
     rm /usr/share/keyrings/kitware-archive-keyring.gpg && \
     apt-get install -y --no-install-recommends \
         autoconf automake cmake cmake-data doxygen kitware-archive-keyring libcurl4-openssl-dev libssl-dev libtool ninja-build zlib1g-dev && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -101,7 +102,7 @@ RUN cd /tmp/mlio/build/release && \
 
 # Build MLIO Python wheel
 RUN cd /tmp/mlio/src/mlio-py && \
-    python3 setup.py bdist_wheel
+    uv build
 
 # Copy TBB libraries and MLIO shared libraries to a location we can copy from
 RUN mkdir -p /mlio-artifacts && \
