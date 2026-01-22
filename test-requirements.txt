@@ -6,7 +6,7 @@ mock
 numpy==2.1.0
 pandas
 pyarrow==17.0.0
-pyOpenSSL==23.1.0
+pyOpenSSL
 pytest
 pytest-cov
 pytest-xdist
