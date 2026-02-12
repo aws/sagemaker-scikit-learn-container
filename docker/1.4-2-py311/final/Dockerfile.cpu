@@ -1,5 +1,5 @@
-FROM sklearn-base:1.4-2
-ENV SAGEMAKER_SKLEARN_VERSION 1.4-2
+FROM sklearn-base:1.4-2-py311
+ENV SAGEMAKER_SKLEARN_VERSION 1.4-2-py311
 ENV PIP_ROOT_USER_ACTION=ignore
 
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
@@ -9,8 +9,8 @@ COPY requirements.txt /requirements.txt
 RUN uv pip install --system -r /requirements.txt && \
     rm /requirements.txt
 
-# Fix Python 3.10 compatibility for sagemaker-containers
-RUN python3 -c "import sys; import os; site_packages = '/usr/local/lib/python3.10/dist-packages'; mapping_file = os.path.join(site_packages, 'sagemaker_containers/_mapping.py'); exec('if os.path.exists(mapping_file):\\n    with open(mapping_file, \"r\") as f:\\n        content = f.read()\\n    content = content.replace(\"collections.Mapping\", \"collections.abc.Mapping\")\\n    with open(mapping_file, \"w\") as f:\\n        f.write(content)')"
+# Fix Python 3.11 compatibility for sagemaker-containers
+RUN python3 -c "import sys; import os; site_packages = '/usr/local/lib/python3.11/dist-packages'; mapping_file = os.path.join(site_packages, 'sagemaker_containers/_mapping.py'); exec('if os.path.exists(mapping_file):\\n    with open(mapping_file, \"r\") as f:\\n        content = f.read()\\n    content = content.replace(\"collections.Mapping\", \"collections.abc.Mapping\")\\n    with open(mapping_file, \"w\") as f:\\n        f.write(content)')"
 
 COPY dist/sagemaker_sklearn_container-2.0-py3-none-any.whl /sagemaker_sklearn_container-2.0-py3-none-any.whl
 RUN uv pip install --system --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \

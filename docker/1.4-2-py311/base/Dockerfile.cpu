@@ -1,0 +1,91 @@
+ARG UBUNTU_VERSION=24.04
+ARG UBUNTU_IMAGE_DIGEST=b359f1067efa76f37863778f7b6d0e8d911e3ee8efa807ad01fbf5dc1ef9006b
+
+# Build stage for SQLite compilation
+FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST} as sqlite-builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential wget ca-certificates && \
+    cd /tmp && \
+    wget https://www.sqlite.org/2025/sqlite-autoconf-3500200.tar.gz && \
+    tar xzf sqlite-autoconf-3500200.tar.gz && \
+    cd sqlite-autoconf-3500200 && \
+    ./configure --prefix=/usr/local && \
+    make && \
+    make install && \
+    ldconfig && \
+    cd / && \
+    rm -rf /tmp/sqlite-autoconf-3500200 /tmp/sqlite-autoconf-3500200.tar.gz && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Main image
+FROM ubuntu:${UBUNTU_VERSION}@sha256:${UBUNTU_IMAGE_DIGEST}
+
+ARG PYTHON_VERSION=3.11
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install runtime dependencies only
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get -y install --no-install-recommends \
+        curl git jq libatlas-base-dev nginx openjdk-8-jdk-headless unzip wget expat tzdata apparmor \
+        libgstreamer1.0-0 libxml2 libsqlite3-0 software-properties-common ca-certificates lsb-release \
+        build-essential linux-libc-dev && \
+    # Add Apache Arrow repository for runtime libraries only
+    wget https://packages.apache.org/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb && \
+    apt install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb && \
+    apt-get update && \
+    apt-get install -y -V libarrow-dev=17.0.0-1 libarrow-dataset-dev=17.0.0-1 libparquet-dev=17.0.0-1 libarrow-acero-dev=17.0.0-1 && \
+    # Add deadsnakes PPA for Python 3.11
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get -y install --no-install-recommends \
+        python3.11 python3.11-distutils python3.11-dev && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    # Create python symlink for backward compatibility
+    ln -sf /usr/bin/python3 /usr/bin/python && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+# Install uv for fast Python package management
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    mv /root/.local/bin/uv /usr/local/bin/uv
+
+ENV PATH=/usr/local/bin:${PATH}
+ENV PIP_ROOT_USER_ACTION=ignore
+
+# Copy compiled SQLite from builder stage
+COPY --from=sqlite-builder /usr/local/bin/sqlite3 /usr/local/bin/sqlite3
+COPY --from=sqlite-builder /usr/local/lib/libsqlite3.* /usr/local/lib/
+COPY --from=sqlite-builder /usr/local/include/sqlite3*.h /usr/local/include/
+
+# Update library cache and ensure /usr/local/bin is in PATH
+RUN ldconfig && \
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/sqlite3.conf && \
+    ldconfig
+
+ENV PATH="/usr/local/bin:${PATH}"
+
+# This command will check the version and print it to the build logs
+RUN sqlite3 --version
+
+# Install awscli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -r aws awscliv2.zip
+
+# Python won't try to write .pyc or .pyo files on the import of source modules
+# Force stdin, stdout and stderr to be totally unbuffered. Good for logging
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8 LANG=C.UTF-8 LC_ALL=C.UTF-8
+
+# Install core scientific packages with exact versions
+RUN uv pip install --system --no-cache \
+    numpy==2.1.0 \
+    scikit-learn==1.4.2 \
+    pyarrow==17.0.0
