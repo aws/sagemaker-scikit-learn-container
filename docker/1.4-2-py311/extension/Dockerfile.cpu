@@ -1,4 +1,4 @@
-FROM preprod-sklearn:1.4-2
+FROM preprod-sklearn:1.4-2-py311
 
 RUN pip freeze | grep -q 'scikit-learn==1.4.2'; \
 	if [ $? -eq 0 ]; \
