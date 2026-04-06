@@ -19,6 +19,10 @@ RUN uv pip install --system --no-cache --break-system-packages /sagemaker_sklear
 # Force upgrade six to 1.16.0 after all packages are installed to ensure six.moves compatibility
 RUN uv pip install --system --break-system-packages --upgrade --force-reinstall six==1.16.0
 
+# CWE-502: Patch sagemaker-inference decoder to disable pickle deserialization
+COPY docker/$SAGEMAKER_SKLEARN_VERSION/resources/patches/decoder.py \
+     /usr/local/lib/python3.12/dist-packages/sagemaker_inference/decoder.py
+
 # Configure pip to always use --break-system-packages for Python 3.12
 RUN mkdir -p /root/.config/pip && \
     echo "[global]" > /root/.config/pip/pip.conf && \
