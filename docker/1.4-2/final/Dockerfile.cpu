@@ -16,6 +16,10 @@ COPY dist/sagemaker_sklearn_container-2.0-py3-none-any.whl /sagemaker_sklearn_co
 RUN uv pip install --system --no-cache /sagemaker_sklearn_container-2.0-py3-none-any.whl && \
     rm /sagemaker_sklearn_container-2.0-py3-none-any.whl
 
+# CWE-502: Patch sagemaker-inference decoder to disable pickle deserialization
+COPY docker/$SAGEMAKER_SKLEARN_VERSION/resources/patches/decoder.py \
+     /usr/local/lib/python3.10/dist-packages/sagemaker_inference/decoder.py
+
 ENV SAGEMAKER_TRAINING_MODULE sagemaker_sklearn_container.training:main
 ENV SAGEMAKER_SERVING_MODULE sagemaker_sklearn_container.serving:main
 
