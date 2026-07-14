@@ -2,13 +2,16 @@
 SageMaker Scikit-learn Container
 ===========================
 
+⚠️ Moved — use ``aws/deep-learning-containers`` instead
+=======================================================
+
 .. important::
 
    **This repository is no longer actively maintained for new scikit-learn version upgrades.**
 
    All future scikit-learn version upgrades and container releases are tracked in the
    `AWS Deep Learning Containers <https://github.com/aws/deep-learning-containers>`__ repository
-   under `docker/sklearn <https://github.com/aws/deep-learning-containers/tree/master/docker/sklearn>`__.
+   under `docker/sklearn <https://github.com/aws/deep-learning-containers/tree/main/docker/sklearn>`__.
 
    This repository remains available as a source reference for the SageMaker scikit-learn serving framework code.
 
